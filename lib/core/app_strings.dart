@@ -93,4 +93,6 @@ class AppStrings {
   static const String aboutTitle = 'About';
   static const String privacyPolicy = 'Privacy Policy';
   static const String termsOfService = 'Terms of Service';
+  static const String supportEmail = 'dashwhiz@gmail.com';
+  static const String contactSupport = 'Contact Support';
 }

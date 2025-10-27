@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'core/app_logger.dart';
 import 'core/app_strings.dart';
 import 'core/app_theme.dart';
 import 'services/storage_service.dart';
@@ -8,10 +9,18 @@ import 'services/appwrite_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Get.putAsync(() => StorageService().init());
-  await Get.putAsync(() => AppwriteService().init());
+  try {
+    AppLogger.info('🚀 Starting Countdown App...');
 
-  runApp(const CountdownApp());
+    await Get.putAsync(() => StorageService().init());
+    await Get.putAsync(() => AppwriteService().init());
+
+    AppLogger.info('✅ App initialized successfully');
+    runApp(const CountdownApp());
+  } catch (e, stackTrace) {
+    AppLogger.fatal('❌ Failed to start app', e, stackTrace);
+    rethrow;
+  }
 }
 
 class CountdownApp extends StatelessWidget {
