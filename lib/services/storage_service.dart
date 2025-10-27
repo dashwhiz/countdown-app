@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../core/app_config.dart';
-import '../core/app_logger.dart';
+import '../app/app_logger.dart';
+import '../app/app_strings.dart';
 import '../models/countdown_event.dart';
 import '../models/user_profile.dart';
 
@@ -17,8 +17,8 @@ class StorageService extends GetxService {
       Hive.registerAdapter(CountdownEventAdapter());
       Hive.registerAdapter(UserProfileAdapter());
 
-      _eventsBox = await Hive.openBox<CountdownEvent>(AppConfig.hiveBoxEvents);
-      _profileBox = await Hive.openBox<UserProfile>(AppConfig.hiveBoxProfile);
+      _eventsBox = await Hive.openBox<CountdownEvent>(AppStrings.hiveBoxEvents);
+      _profileBox = await Hive.openBox<UserProfile>(AppStrings.hiveBoxProfile);
 
       AppLogger.info('Storage initialized successfully');
       return this;

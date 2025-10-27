@@ -3,6 +3,18 @@ class AppStrings {
 
   static const String appName = 'Countdown';
 
+  // Storage
+  static const String hiveBoxEvents = 'events';
+  static const String hiveBoxProfile = 'profile';
+
+  // URLs
+  static const String shareUrlBase = 'https://countdown.app';
+  static const String privacyPolicyUrl = 'https://countdown.app/privacy';
+  static const String termsOfServiceUrl = 'https://countdown.app/terms';
+
+  // Pro
+  static const String proPurchaseId = 'countdown_pro_lifetime';
+
   // General
   static const String ok = 'OK';
   static const String cancel = 'Cancel';
@@ -11,6 +23,15 @@ class AppStrings {
   static const String save = 'Save';
   static const String share = 'Share';
   static const String close = 'Close';
+  static const String retry = 'Retry';
+  static const String yes = 'Yes';
+  static const String no = 'No';
+
+  // Dialog Titles
+  static const String errorTitle = 'Error';
+  static const String successTitle = 'Success';
+  static const String confirmTitle = 'Confirm';
+  static const String infoTitle = 'Information';
 
   // Home Screen
   static const String homeTitle = 'My Countdowns';
