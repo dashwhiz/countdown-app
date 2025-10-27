@@ -23,17 +23,11 @@ class AppDialog {
             const SizedBox(width: 12),
             Text(
               title ?? AppStrings.errorTitle,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
         ),
-        content: Text(
-          message,
-          style: const TextStyle(fontSize: 16),
-        ),
+        content: Text(message, style: const TextStyle(fontSize: 16)),
         actions: [
           if (onRetry != null)
             TextButton(
@@ -71,17 +65,11 @@ class AppDialog {
             const SizedBox(width: 12),
             Text(
               title ?? AppStrings.successTitle,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
         ),
-        content: Text(
-          message,
-          style: const TextStyle(fontSize: 16),
-        ),
+        content: Text(message, style: const TextStyle(fontSize: 16)),
         actions: [
           TextButton(
             onPressed: () {
@@ -116,17 +104,11 @@ class AppDialog {
             const SizedBox(width: 12),
             Text(
               title ?? AppStrings.confirmTitle,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
         ),
-        content: Text(
-          message,
-          style: const TextStyle(fontSize: 16),
-        ),
+        content: Text(message, style: const TextStyle(fontSize: 16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -164,17 +146,11 @@ class AppDialog {
             const SizedBox(width: 12),
             Text(
               title ?? AppStrings.infoTitle,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
         ),
-        content: Text(
-          message,
-          style: const TextStyle(fontSize: 16),
-        ),
+        content: Text(message, style: const TextStyle(fontSize: 16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),

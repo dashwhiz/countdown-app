@@ -45,12 +45,16 @@ flutter run -d chrome
 ```
 lib/
 ├── main.dart              # Mobile entry
-├── main_web.dart          # Web entry
-├── models/                # Data models
-├── services/              # Business logic
-├── screens/               # Mobile screens
-├── widgets/               # Reusable components
-└── web/                   # Web-specific screens
+├── main_web.dart          # Web entry (coming soon)
+├── app/                   # App-wide configuration (colors, strings, theme, etc.)
+├── models/                # Data models (CountdownEvent, UserProfile)
+├── repositories/          # API/data layer
+├── screens/               # Mobile screens (controller + view in same file)
+├── services/              # Core services (storage, API)
+├── utils/                 # Pure utility functions (date_utils, operation_scope)
+├── view_models/           # UI formatting view models (pure - no state)
+├── widgets/               # Reusable components (AppLoading, AppFutureBuilder)
+└── web/                   # Web-specific screens (coming soon)
 ```
 
 ## Documentation

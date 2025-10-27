@@ -4,6 +4,7 @@ import 'app_logger.dart';
 import 'app_strings.dart';
 import 'app_theme.dart';
 import '../services/storage_service.dart';
+import '../screens/home_screen.dart';
 
 class CountdownApp extends StatefulWidget {
   const CountdownApp({super.key});
@@ -42,7 +43,7 @@ class _CountdownAppState extends State<CountdownApp> {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       home: _isInitialized
-          ? const Placeholder()
+          ? const HomeScreen()
           : const Scaffold(
               body: Center(
                 child: CircularProgressIndicator(),

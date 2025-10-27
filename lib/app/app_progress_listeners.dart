@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../widgets/app_loader.dart';
+import '../widgets/app_loading.dart';
 
 /// Abstract class which provides functionality to [show] and [hide] progress
 class ProgressListener {
@@ -72,7 +72,7 @@ class DelayedProgressListener extends ProgressListener {
   void hideDelayed() {}
 }
 
-/// Derived class from [DelayedProgressListener], displays AppLoader
+/// Derived class from [DelayedProgressListener], displays AppLoading
 class DefaultProgressListener extends DelayedProgressListener {
   DefaultProgressListener(
     this.context, {
@@ -83,11 +83,11 @@ class DefaultProgressListener extends DelayedProgressListener {
 
   @override
   void showDelayed({String? message}) {
-    AppLoader.show(context);
+    AppLoading.show(context, message: message);
   }
 
   @override
   void hideDelayed() {
-    AppLoader.hide(context);
+    AppLoading.hide(context);
   }
 }

@@ -107,12 +107,17 @@ class AppStrings {
   static const String errorSharingEvent = 'Failed to share countdown';
   static const String errorDeletingEvent = 'Failed to delete countdown';
 
+  // Menu
+  static const String restorePurchases = 'Restore Purchases';
+  static const String privacyPolicy = 'Privacy Policy';
+  static const String helpAndSupport = 'Help & Support';
+  static const String about = 'About';
+
   // Settings (future)
   static const String settingsTitle = 'Settings';
   static const String notificationsTitle = 'Notifications';
   static const String themesTitle = 'Themes';
   static const String aboutTitle = 'About';
-  static const String privacyPolicy = 'Privacy Policy';
   static const String termsOfService = 'Terms of Service';
   static const String supportEmail = 'dashwhiz@gmail.com';
   static const String contactSupport = 'Contact Support';
