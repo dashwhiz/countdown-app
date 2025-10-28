@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../app/app_constants.dart';
 import '../widgets/app_logo.dart';
 
 /// Splash screen with animated logo shown during app initialization
@@ -23,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Pulsating/breathing animation - bigger range for more pop
     _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+      duration: AppConstants.splashAnimationPulse,
       vsync: this,
     );
     _pulseAnimation = Tween<double>(begin: 0.92, end: 1.08).animate(
@@ -33,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Shimmer/glow animation - faster speed
     _shimmerController = AnimationController(
-      duration: const Duration(milliseconds: 1800),
+      duration: AppConstants.splashAnimationShimmer,
       vsync: this,
     );
     _shimmerAnimation = Tween<double>(begin: -1.0, end: 2.0).animate(
@@ -79,11 +80,11 @@ class _SplashScreenState extends State<SplashScreen>
                     ).createShader(bounds);
                   },
                   child: Container(
-                    width: 180,
-                    height: 180,
+                    width: AppConstants.splashContainerSize,
+                    height: AppConstants.splashContainerSize,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(40),
+                      borderRadius: BorderRadius.circular(AppConstants.borderRadiusExtraLarge),
                     ),
                   ),
                 );
@@ -96,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen>
               builder: (context, child) {
                 return Transform.scale(
                   scale: _pulseAnimation.value,
-                  child: const AppLogo(size: 160),
+                  child: const AppLogo(size: AppConstants.splashLogoSize),
                 );
               },
             ),

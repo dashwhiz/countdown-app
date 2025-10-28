@@ -98,7 +98,7 @@ class DetailScreen extends StatelessWidget {
                     icon: const Icon(Icons.edit, color: Colors.white),
                     tooltip: AppStrings.tooltipEditCountdown,
                     onPressed: ctrl.navigateToEdit,
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(AppConstants.paddingSmall),
                   ),
                 ),
                 IconButton(
@@ -106,7 +106,7 @@ class DetailScreen extends StatelessWidget {
                   tooltip: AppStrings.tooltipShareCountdown,
                   onPressed: ctrl.handleShare,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppConstants.paddingSmall),
               ],
             ),
             body: Column(
@@ -128,7 +128,7 @@ class DetailScreen extends StatelessWidget {
                           children: [
                             Text(
                               ctrl.event.emoji,
-                              style: const TextStyle(fontSize: 64),
+                              style: const TextStyle(fontSize: AppConstants.fontSizeLarge),
                             ),
                             const SizedBox(width: AppConstants.paddingMedium),
                             Flexible(

@@ -136,7 +136,7 @@ class HomeScreen extends StatelessWidget {
                       await ctrl.loadEvents();
                     }
                   },
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(AppConstants.paddingSmall),
                 ),
               ),
               // Menu button
@@ -162,7 +162,7 @@ class HomeScreen extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          SizedBox(height: 8),
+          const SizedBox(height: AppConstants.paddingSmall),
           PinnedEventsSection(
             pinnedEvents: ctrl.pinnedEvents,
             onEventTap: (event) async {
@@ -200,7 +200,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           Icon(
             Icons.event_available,
-            size: 80,
+            size: AppConstants.iconSizeGiant,
             color: AppColors.textSecondaryDark,
           ),
           const SizedBox(height: AppConstants.paddingMedium),

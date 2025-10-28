@@ -22,7 +22,7 @@ class InitErrorScreen extends StatelessWidget {
               // Error icon
               Icon(
                 Icons.error_outline,
-                size: 80,
+                size: AppConstants.iconSizeGiant,
                 color: AppColors.error,
               ),
               const SizedBox(height: AppConstants.paddingLarge * 2),
@@ -64,10 +64,10 @@ class InitErrorScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   AppStrings.retryButton,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: AppConstants.fontSizeMedium,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

@@ -170,7 +170,7 @@ class CreateEditEventController extends GetxController {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        icon: const Icon(Icons.warning_amber_rounded, size: 48, color: AppColors.warning),
+        icon: const Icon(Icons.warning_amber_rounded, size: AppConstants.iconSizeExtraLarge, color: AppColors.warning),
         title: const Text(AppStrings.unsavedChangesTitle),
         content: const Text(AppStrings.unsavedChangesMessage),
         actions: [
@@ -247,31 +247,31 @@ class CreateEditEventScreen extends StatelessWidget {
                         hintText: AppStrings.eventTitleHint,
                         filled: false,
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
                           borderSide: BorderSide(
                             color: Colors.grey.shade600,
-                            width: 1,
+                            width: AppConstants.borderWidthThin,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
                           borderSide: const BorderSide(
                             color: AppColors.primary,
-                            width: 2,
+                            width: AppConstants.borderWidthMedium,
                           ),
                         ),
                         errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
                           borderSide: const BorderSide(
                             color: AppColors.error,
-                            width: 1,
+                            width: AppConstants.borderWidthThin,
                           ),
                         ),
                         focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
                           borderSide: const BorderSide(
                             color: AppColors.error,
-                            width: 2,
+                            width: AppConstants.borderWidthMedium,
                           ),
                         ),
                       ),
@@ -290,24 +290,24 @@ class CreateEditEventScreen extends StatelessWidget {
                       onTap: () => ctrl.pickDateTime(context),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 16,
+                          horizontal: AppConstants.paddingMedium,
+                          vertical: AppConstants.paddingMedium,
                         ),
                         decoration: BoxDecoration(
                           border: Border.all(
                             color: Colors.grey.shade600,
-                            width: 1,
+                            width: AppConstants.borderWidthThin,
                           ),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
                         ),
                         child: Row(
                           children: [
                             Icon(
                               Icons.calendar_today,
-                              size: 20,
+                              size: AppConstants.iconSizeSmall,
                               color: Colors.grey.shade600,
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppConstants.paddingMedium),
                             Text(
                               DateFormat(
                                 'MMM dd, yyyy • HH:mm',
@@ -354,7 +354,7 @@ class CreateEditEventScreen extends StatelessWidget {
                         vertical: AppConstants.paddingLarge,
                       ),
                       child: Container(
-                        height: 1,
+                        height: AppConstants.borderWidthThin,
                         color: Colors.grey.withValues(alpha: 0.2),
                       ),
                     ),
@@ -370,19 +370,19 @@ class CreateEditEventScreen extends StatelessWidget {
                           disabledBackgroundColor: Colors.grey.shade300,
                           disabledForegroundColor: Colors.grey.shade600,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
                           ),
                         ),
-                        child: Text(
+                        child: const Text(
                           AppStrings.save,
-                          style: const TextStyle(
-                            fontSize: 16,
+                          style: TextStyle(
+                            fontSize: AppConstants.fontSizeMedium,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: AppConstants.paddingExtraLarge),
                   ],
                 ),
               ),
