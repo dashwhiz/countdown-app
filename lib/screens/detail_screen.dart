@@ -128,7 +128,9 @@ class DetailScreen extends StatelessWidget {
                           children: [
                             Text(
                               ctrl.event.emoji,
-                              style: const TextStyle(fontSize: AppConstants.fontSizeLarge),
+                              style: const TextStyle(
+                                fontSize: AppConstants.fontSizeLarge,
+                              ),
                             ),
                             const SizedBox(width: AppConstants.paddingMedium),
                             Flexible(
