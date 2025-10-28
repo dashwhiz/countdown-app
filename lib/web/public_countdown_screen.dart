@@ -150,7 +150,9 @@ class PublicCountdownController extends GetxController {
 
     // Check localStorage rate limit
     if (!WebStorageHelper.canReact(slug)) {
-      AppLogger.warning('[PublicCountdown] Reaction rate limited by localStorage');
+      AppLogger.warning(
+        '[PublicCountdown] Reaction rate limited by localStorage',
+      );
       Get.snackbar(
         AppStrings.reactSlowDown,
         AppStrings.reactSlowDownMessage,
