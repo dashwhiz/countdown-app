@@ -3,7 +3,7 @@ import '../app/app_colors.dart';
 import '../app/app_constants.dart';
 import '../app/app_strings.dart';
 import '../models/countdown_event.dart';
-import '../utils/text_helpers.dart';
+import '../utils/helper_functions.dart';
 import '../view_models/event_view_model.dart';
 
 class EventListItem extends StatelessWidget {
@@ -128,7 +128,7 @@ class EventListItem extends StatelessWidget {
                                 children: [
                                   Flexible(
                                     child: Text(
-                                      TextHelpers.capitalizeFirst(event.title),
+                                      HelperFunctions.capitalizeFirst(event.title),
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleMedium

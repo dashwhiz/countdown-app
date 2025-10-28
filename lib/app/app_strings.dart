@@ -56,18 +56,21 @@ class AppStrings {
   static const String eventTitleRequired = 'Please enter a title';
 
   // Detail Screen
+  static const String detailsTitle = 'Details';
   static const String shareEvent = 'Share Countdown';
   static const String linkCopied = 'Link copied!';
   static const String copyLink = 'Copy Link';
   static const String pinToTop = 'Pin to Top';
   static const String unpinFromTop = 'Unpin';
   static const String deleteEvent = 'Delete Event';
+  static const String endedOn = 'Ended on:';
+  static const String endsOn = 'Ends on:';
 
   // Time Display
-  static const String days = 'days';
-  static const String hours = 'hours';
-  static const String minutes = 'minutes';
-  static const String seconds = 'seconds';
+  static const String days = 'Day(s)';
+  static const String hours = 'Hour(s)';
+  static const String minutes = 'Minute(s)';
+  static const String seconds = 'Second(s)';
   static const String day = 'day';
   static const String hour = 'hour';
   static const String minute = 'minute';

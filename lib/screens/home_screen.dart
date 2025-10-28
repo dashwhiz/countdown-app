@@ -15,6 +15,7 @@ import '../widgets/app_future_builder.dart';
 import '../widgets/app_menu_button.dart';
 import '../widgets/pinned_events_section.dart';
 import 'create_edit_event_screen.dart';
+import 'detail_screen.dart';
 
 class HomeController extends GetxController {
   final EventsRepo _repo = EventsRepo();
@@ -160,7 +161,7 @@ class HomeScreen extends StatelessWidget {
             pinnedEvents: ctrl.pinnedEvents,
             onEventTap: (event) async {
               final result = await Get.to(
-                () => CreateEditEventScreen(eventToEdit: event),
+                () => DetailScreen(event: event),
               );
               if (result == true) {
                 await ctrl.loadEvents();
@@ -174,7 +175,7 @@ class HomeScreen extends StatelessWidget {
             unpinnedEvents: ctrl.unpinnedEvents,
             onEventTap: (event) async {
               final result = await Get.to(
-                () => CreateEditEventScreen(eventToEdit: event),
+                () => DetailScreen(event: event),
               );
               if (result == true) {
                 await ctrl.loadEvents();
