@@ -55,7 +55,7 @@ class AppConstants {
   static const double maxWebContentWidth = 600.0;
 
   // Sharing & Security
-  static const String shareUrlBase = 'https://fra.cloud.appwrite.io';
+  static const String shareUrlBase = 'https://dashwhiz.github.io/countdown-app';
   static const String ipHashingSalt = 'countdown_app_salt_2025';
   static const int slugLength = 12;
 
