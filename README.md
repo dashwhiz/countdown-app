@@ -4,9 +4,11 @@ A beautiful, local-first event countdown app with shareable mini-pages.
 
 ## Features
 
-- 📅 Create unlimited countdowns with custom colors and emojis
-- 🔗 Shareable public links with live countdown timers
-- ❤️ Interactive reactions on shared pages
+- 📅 Create unlimited countdowns with custom colors (21 colors) and emojis (35+ options)
+- 📌 Pin important events with dedicated pinned section
+- 🌙 Beautiful dark mode UI with iOS-style animations
+- 🔗 Shareable public links with live countdown timers (coming soon)
+- ❤️ Interactive reactions on shared pages (coming soon)
 - 🎨 Pro themes and icon packs (v1.2)
 - 📱 Home/lock screen widgets (iOS & Android)
 
