@@ -5,6 +5,7 @@ import 'app_logger.dart';
 import 'app_strings.dart';
 import 'app_theme.dart';
 import '../services/storage_service.dart';
+import '../screens/splash_screen.dart';
 import '../screens/home_screen.dart';
 
 class CountdownApp extends StatefulWidget {
@@ -24,18 +25,32 @@ class _CountdownAppState extends State<CountdownApp> {
   }
 
   Future<void> _initializeApp() async {
+    final startTime = DateTime.now();
+
     try {
       AppLogger.info('🚀 Starting Countdown App...');
 
       // Initialize timezone database
       tz.initializeTimeZones();
 
+      // Initialize storage service
       await Get.putAsync(() => StorageService().init());
 
       AppLogger.info('✅ App initialized successfully');
-      setState(() => _isInitialized = true);
     } catch (e, stackTrace) {
       AppLogger.fatal('❌ Failed to start app', e, stackTrace);
+    }
+
+    // Wait minimum 3 seconds for branding/splash
+    final elapsed = DateTime.now().difference(startTime);
+    if (elapsed.inMilliseconds < 3000) {
+      await Future.delayed(
+        Duration(milliseconds: 3000 - elapsed.inMilliseconds),
+      );
+    }
+
+    if (mounted) {
+      setState(() => _isInitialized = true);
     }
   }
 
@@ -46,13 +61,7 @@ class _CountdownAppState extends State<CountdownApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark,
-      home: _isInitialized
-          ? const HomeScreen()
-          : const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
+      home: _isInitialized ? const HomeScreen() : const SplashScreen(),
     );
   }
 }
