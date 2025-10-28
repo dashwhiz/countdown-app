@@ -28,9 +28,14 @@ class EventListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = EventViewModel(event);
 
-    return Dismissible(
-      key: ValueKey(event.id),
-      direction: DismissDirection.horizontal,
+    return Semantics(
+      label: '${event.title} countdown',
+      hint: event.isPinned
+          ? 'Swipe right to unpin, swipe left to delete'
+          : 'Swipe right to pin, swipe left to delete',
+      child: Dismissible(
+        key: ValueKey(event.id),
+        direction: DismissDirection.horizontal,
       background: Container(
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.only(left: 20),
@@ -200,6 +205,7 @@ class EventListItem extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }
