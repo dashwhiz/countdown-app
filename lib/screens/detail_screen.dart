@@ -39,8 +39,8 @@ class DetailController extends GetxController {
   void handleShare() {
     // Placeholder for Phase 2
     Get.snackbar(
-      'Coming Soon',
-      'Sharing feature will be available in the next update!',
+      AppStrings.comingSoonTitle,
+      AppStrings.comingSoonSharingMessage,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: AppColors.cardDark,
       colorText: AppColors.textPrimaryDark,

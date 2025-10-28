@@ -198,20 +198,24 @@ class HomeScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.event_available, size: 80, color: Colors.grey[400]),
+          Icon(
+            Icons.event_available,
+            size: 80,
+            color: AppColors.textSecondaryDark,
+          ),
           const SizedBox(height: AppConstants.paddingMedium),
           Text(
             AppStrings.emptyStateTitle,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(color: Colors.grey[600]),
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: AppColors.textPrimaryDark,
+                ),
           ),
           const SizedBox(height: AppConstants.paddingSmall),
           Text(
             AppStrings.emptyStateMessage,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondaryDark,
+                ),
           ),
         ],
       ),

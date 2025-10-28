@@ -86,7 +86,7 @@ class PinnedEventsSection extends StatelessWidget {
                 TextButton(
                   onPressed: () => _showAllPinnedModal(context),
                   child: Text(
-                    'View all ($hiddenCount more)',
+                    '${AppStrings.viewAllPinned} ($hiddenCount more)',
                     style: TextStyle(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w600,

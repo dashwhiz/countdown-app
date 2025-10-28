@@ -185,7 +185,7 @@ class EventListItem extends StatelessWidget {
                   // Chevron icon
                   Icon(
                     Icons.chevron_right,
-                    color: Colors.grey.shade400,
+                    color: AppColors.textSecondaryDark,
                     size: 24,
                   ),
                 ],

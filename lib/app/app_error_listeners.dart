@@ -51,12 +51,12 @@ abstract class MessagedErrorListener extends ErrorListener {
 
   static String defineMessageFromCode(int? code) {
     if (code == ErrorListener.offlineStatusCode) {
-      return 'Please check your internet connection';
+      return AppStrings.errorOfflineMessage;
     } else if (code == ErrorListener.timeOutStatusCode) {
-      return 'Connection timeout. Please try again';
+      return AppStrings.errorTimeoutMessage;
     }
 
-    return 'An unexpected error occurred';
+    return AppStrings.errorUnknownMessage;
   }
 }
 

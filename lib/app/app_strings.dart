@@ -51,6 +51,7 @@ class AppStrings {
   static const String deleteCountdownMessage = 'This action cannot be undone.';
   static const String pin = 'Pin';
   static const String unpin = 'Unpin';
+  static const String viewAllPinned = 'View all';
 
   // Create/Edit Screen
   static const String createTitle = 'Create';
@@ -73,6 +74,8 @@ class AppStrings {
   static const String deleteEvent = 'Delete Event';
   static const String endedOn = 'Ended on:';
   static const String endsOn = 'Ends on:';
+  static const String comingSoonTitle = 'Coming Soon';
+  static const String comingSoonSharingMessage = 'Sharing feature will be available in the next update!';
 
   // Time Display
   static const String days = 'Day(s)';
@@ -121,6 +124,9 @@ class AppStrings {
   static const String errorDeletingEvent = 'Failed to delete countdown';
   static const String errorInitialization = 'Failed to Initialize';
   static const String errorInitializationMessage = 'We couldn\'t start the app. Please try again.';
+  static const String errorOfflineMessage = 'Please check your internet connection';
+  static const String errorTimeoutMessage = 'Connection timeout. Please try again';
+  static const String errorUnknownMessage = 'An unexpected error occurred';
   static const String retryButton = 'Retry';
 
   // Menu
