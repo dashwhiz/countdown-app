@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import '../app/app_colors.dart';
 import '../app/app_constants.dart';
 import '../app/app_logger.dart';
@@ -17,9 +17,43 @@ class DetailController extends GetxController {
   final EventsRepo _repo = EventsRepo();
   final SharingRepo _sharingRepo = SharingRepo();
   bool wasEdited = false;
-  final isSharing = false.obs;
+
+  // Reaction count (only if event is shared)
+  final reactionCount = Rxn<int>();
+  final isLoadingReactions = false.obs;
 
   DetailController({required this.event});
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Load reaction count if event is shared
+    if (event.isShared) {
+      _loadReactionCount();
+    }
+  }
+
+  /// Load reaction count from Appwrite
+  Future<void> _loadReactionCount() async {
+    try {
+      isLoadingReactions.value = true;
+      final count = await _sharingRepo.getReactionCount(event.shareSlug!);
+      reactionCount.value = count;
+      AppLogger.debug('[DetailController] Reaction count: $count');
+    } catch (e) {
+      AppLogger.error('[DetailController] Failed to load reactions', e);
+      reactionCount.value = null;
+    } finally {
+      isLoadingReactions.value = false;
+    }
+  }
+
+  /// Refresh reaction count
+  Future<void> refreshReactions() async {
+    if (event.isShared) {
+      await _loadReactionCount();
+    }
+  }
 
   Future<void> navigateToEdit() async {
     final result = await Get.to(
@@ -41,16 +75,21 @@ class DetailController extends GetxController {
     Get.back(result: wasEdited);
   }
 
-  Future<void> handleShare() async {
+  Future<void> handleShare(BuildContext context) async {
     try {
-      isSharing.value = true;
       AppLogger.info('[DetailController] Starting share process...');
+
+      // Get the share button's position BEFORE any async operations
+      final box = context.findRenderObject() as RenderBox?;
+      final sharePositionOrigin = box != null
+          ? box.localToGlobal(Offset.zero) & box.size
+          : null;
 
       // Create or get existing share slug
       final slug = await _sharingRepo.createOrGetShareSlug(event);
 
       if (slug == null) {
-        throw Exception('Failed to create share link');
+        throw Exception(AppStrings.createShareFailed);
       }
 
       // If this is a new share, update the local event with the slug
@@ -60,44 +99,38 @@ class DetailController extends GetxController {
         event = updatedEvent;
         wasEdited = true;
         update();
+
+        // Load reaction count for the newly shared event
+        await _loadReactionCount();
       }
 
       // Build the shareable URL
       // TODO: Replace with your actual domain when web app is deployed
-      final shareUrl = 'https://fra.cloud.appwrite.io/?id=$slug';
+      final shareUrl = '${AppConstants.shareUrlBase}/?id=$slug';
 
-      // Copy to clipboard
-      await Clipboard.setData(ClipboardData(text: shareUrl));
-
-      // Show success message
-      Get.snackbar(
-        '🎉 Link Copied!',
-        'Share this link with anyone to show your countdown',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.success,
-        colorText: Colors.white,
-        margin: const EdgeInsets.all(AppConstants.paddingMedium),
-        borderRadius: AppConstants.borderRadiusLarge,
-        duration: const Duration(seconds: 3),
+      // Share using native share dialog with promotional text
+      final shareText = '${AppStrings.sharePromoMessage}\n\n$shareUrl';
+      await Share.share(
+        shareText,
+        subject: '${event.emoji} ${event.title}',
+        sharePositionOrigin: sharePositionOrigin,
       );
 
       AppLogger.info('[DetailController] Share successful: $shareUrl');
     } catch (e, stackTrace) {
       AppLogger.error('[DetailController] Share failed', e, stackTrace);
 
-      // Show error message
+      // Show user-friendly error message
       Get.snackbar(
-        'Share Failed',
-        e.toString().replaceAll('Exception: ', ''),
-        snackPosition: SnackPosition.BOTTOM,
+        AppStrings.shareFailed,
+        AppStrings.shareFailedMessage,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: AppColors.error,
         colorText: Colors.white,
         margin: const EdgeInsets.all(AppConstants.paddingMedium),
         borderRadius: AppConstants.borderRadiusLarge,
-        duration: const Duration(seconds: 4),
+        duration: const Duration(seconds: 3),
       );
-    } finally {
-      isSharing.value = false;
     }
   }
 
@@ -153,20 +186,13 @@ class DetailScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(AppConstants.paddingSmall),
                   ),
                 ),
-                Obx(() => IconButton(
-                  icon: ctrl.isSharing.value
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Icon(Icons.share_outlined),
-                  tooltip: AppStrings.tooltipShareCountdown,
-                  onPressed: ctrl.isSharing.value ? null : ctrl.handleShare,
-                )),
+                Builder(
+                  builder: (btnContext) => IconButton(
+                    icon: const Icon(Icons.share_outlined),
+                    tooltip: AppStrings.tooltipShareCountdown,
+                    onPressed: () => ctrl.handleShare(btnContext),
+                  ),
+                ),
                 const SizedBox(width: AppConstants.paddingSmall),
               ],
             ),
@@ -210,6 +236,11 @@ class DetailScreen extends StatelessWidget {
                         // Countdown display (isolated StatefulWidget)
                         CountdownDisplay(event: ctrl.event),
                         const SizedBox(height: AppConstants.paddingLarge * 2),
+                        // Reaction counter (if event is shared)
+                        if (ctrl.event.isShared) ...[
+                          Obx(() => _buildReactionCounter(context, ctrl)),
+                          const SizedBox(height: AppConstants.paddingLarge * 2),
+                        ],
                         // Target date
                         Text(
                           ctrl.event.targetDate.isBefore(DateTime.now())
@@ -234,6 +265,79 @@ class DetailScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  /// Build reaction counter widget
+  Widget _buildReactionCounter(BuildContext context, DetailController ctrl) {
+    if (ctrl.isLoadingReactions.value) {
+      return Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.paddingLarge,
+          vertical: AppConstants.paddingMedium,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.cardDark.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
+          border: Border.all(color: AppColors.dividerDark, width: 1),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 12),
+            Text(AppStrings.loadingReactions),
+          ],
+        ),
+      );
+    }
+
+    final count = ctrl.reactionCount.value ?? 0;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppConstants.paddingLarge,
+        vertical: AppConstants.paddingMedium,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.cardDark.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
+        border: Border.all(color: AppColors.dividerDark, width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('❤️', style: TextStyle(fontSize: 20)),
+          const SizedBox(width: 12),
+          Text(
+            count == 0
+                ? AppStrings.noReactionsYet
+                : count == 1
+                    ? AppStrings.onePersonReacted
+                    : '$count ${AppStrings.peopleReacted}',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          const SizedBox(width: 12),
+          InkWell(
+            onTap: ctrl.refreshReactions,
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Icon(
+                Icons.refresh,
+                size: 18,
+                color: AppColors.textSecondaryDark,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

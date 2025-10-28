@@ -3,7 +3,9 @@ import 'package:appwrite/appwrite.dart';
 import 'package:crypto/crypto.dart';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
+import '../app/app_constants.dart';
 import '../app/app_logger.dart';
+import '../app/app_strings.dart';
 import '../models/countdown_event.dart';
 import '../services/appwrite_service.dart';
 
@@ -36,7 +38,8 @@ class SharingRepo {
         data: {
           'slug': slug,
           'title': event.title,
-          'targetDate': event.targetDate.toIso8601String(),
+          'targetDate': event.targetDate.toUtc().toIso8601String(),
+          'eventCreatedAt': event.createdAt.toUtc().toIso8601String(),
           'timezone': event.timezone,
           'emoji': event.emoji,
           'colorValue': event.colorValue,
@@ -51,11 +54,11 @@ class SharingRepo {
 
       // Check for specific error types
       if (AppwriteService.isNetworkError(e)) {
-        throw Exception('Network error. Please check your internet connection.');
+        throw Exception(AppStrings.errorNetwork);
       } else if (AppwriteService.isRateLimitError(e)) {
-        throw Exception('Too many requests. Please try again in a moment.');
+        throw Exception(AppStrings.errorRateLimit);
       } else {
-        throw Exception('Failed to create shareable link. Please try again.');
+        throw Exception(AppStrings.errorCreateShareLink);
       }
     }
   }
@@ -89,7 +92,8 @@ class SharingRepo {
         'id': doc.$id,
         'slug': doc.data['slug'],
         'title': doc.data['title'],
-        'targetDate': DateTime.parse(doc.data['targetDate']),
+        'targetDate': DateTime.parse(doc.data['targetDate']).toLocal(),
+        'eventCreatedAt': DateTime.parse(doc.data['eventCreatedAt']).toLocal(),
         'timezone': doc.data['timezone'],
         'emoji': doc.data['emoji'],
         'colorValue': doc.data['colorValue'],
@@ -211,16 +215,14 @@ class SharingRepo {
   String _generateSlug() {
     const uuid = Uuid();
     final id = uuid.v4().replaceAll('-', '');
-    // Take first 12 characters for shorter URLs
-    return id.substring(0, 12);
+    return id.substring(0, AppConstants.slugLength);
   }
 
   /// Hash IP address for privacy
   ///
   /// Uses SHA256 with salt for one-way hashing
   String _hashIp(String ipAddress) {
-    const salt = 'countdown_app_salt_2025'; // Change this to something unique
-    final bytes = utf8.encode(ipAddress + salt);
+    final bytes = utf8.encode(ipAddress + AppConstants.ipHashingSalt);
     final digest = sha256.convert(bytes);
     return digest.toString();
   }

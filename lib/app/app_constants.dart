@@ -54,6 +54,11 @@ class AppConstants {
   static const int breakpointDesktop = 1200;
   static const double maxWebContentWidth = 600.0;
 
+  // Sharing & Security
+  static const String shareUrlBase = 'https://fra.cloud.appwrite.io';
+  static const String ipHashingSalt = 'countdown_app_salt_2025';
+  static const int slugLength = 12;
+
   // Default Content
   static const String defaultEmoji = '🎉';
   static const List<String> defaultEmojis = [

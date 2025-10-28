@@ -1,6 +1,7 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:get/get.dart';
 import '../app/app_logger.dart';
+import '../app/app_strings.dart';
 
 /// Appwrite service for managing shareable countdown pages and reactions
 ///
@@ -11,8 +12,8 @@ import '../app/app_logger.dart';
 class AppwriteService extends GetxService {
   // Appwrite configuration
   static const String _endpoint = 'https://fra.cloud.appwrite.io/v1';
-  static const String _projectId = '690125ed003455928b9e';
-  static const String _databaseId = 'production';
+  static const String _projectId = '690125b60025bbef5adc';
+  static const String _databaseId = '690125ed003455928b9e';
   static const String _sharedEventsCollectionId = 'shared_events';
   static const String _reactionsCollectionId = 'reactions';
 
@@ -59,24 +60,6 @@ class AppwriteService extends GetxService {
   String get sharedEventsCollectionId => _sharedEventsCollectionId;
   String get reactionsCollectionId => _reactionsCollectionId;
 
-  /// Test connection to Appwrite
-  Future<bool> testConnection() async {
-    try {
-      AppLogger.debug('[AppwriteService] Testing connection...');
-      // Try to list documents with limit 1 (minimal request)
-      await _databases.listDocuments(
-        databaseId: _databaseId,
-        collectionId: _sharedEventsCollectionId,
-        queries: [Query.limit(1)],
-      );
-      AppLogger.debug('[AppwriteService] Connection test successful');
-      return true;
-    } catch (e) {
-      AppLogger.error('[AppwriteService] Connection test failed: $e');
-      return false;
-    }
-  }
-
   /// Check if error is a network issue
   static bool isNetworkError(dynamic error) {
     if (error is AppwriteException) {
@@ -113,14 +96,14 @@ class AppwriteService extends GetxService {
   /// Get user-friendly error message
   static String getFriendlyErrorMessage(dynamic error) {
     if (isNetworkError(error)) {
-      return 'Network error. Please check your internet connection.';
+      return AppStrings.errorNetwork;
     } else if (isRateLimitError(error)) {
-      return 'Too many requests. Please try again in a moment.';
+      return AppStrings.errorRateLimit;
     } else if (isNotFoundError(error)) {
-      return 'Content not found.';
+      return AppStrings.errorNotFound;
     } else if (error is AppwriteException) {
-      return error.message ?? 'An error occurred. Please try again.';
+      return error.message ?? AppStrings.errorGeneric;
     }
-    return 'An unexpected error occurred.';
+    return AppStrings.errorUnexpected;
   }
 }

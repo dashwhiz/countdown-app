@@ -94,17 +94,25 @@ class AppStrings {
 
   // Sharing
   static const String shareMessage = 'Check out my countdown:';
+  static const String sharePromoMessage = 'Check out my countdown! Track your special moments with Countdown App 🎉';
   static const String sharedEventNotFound = 'Countdown not found';
   static const String loadingEvent = 'Loading countdown...';
+  static const String shareFailed = 'Share Failed';
+  static const String shareFailedMessage = 'Could not share the countdown. Please try again.';
+  static const String createShareFailed = 'Failed to create share link';
 
   // Reactions
   static const String reactions = 'reactions';
   static const String peopleReacted = 'people reacted';
+  static const String onePersonReacted = '1 person reacted';
+  static const String noReactionsYet = 'No reactions yet';
+  static const String beFirstToReact = 'Be the first to react!';
   static const String alreadyReacted = 'Already reacted';
   static const String alreadyReactedMessage = 'You can only react once';
-  static const String reactSlowDown = 'Slow down';
-  static const String reactSlowDownMessage = 'Try again in a minute';
-  static const String doubleTapToReact = 'Double-tap to react';
+  static const String reactSlowDown = 'Slow Down!';
+  static const String reactSlowDownMessage = 'You can only react once per hour';
+  static const String doubleTapToReact = 'Double-tap anywhere to react ❤️';
+  static const String loadingReactions = 'Loading reactions...';
 
   // Pro Features
   static const String proTitle = 'Upgrade to Pro';
@@ -119,9 +127,24 @@ class AppStrings {
   static const String proRecurringTitle = 'Recurring Countdowns';
   static const String proExportTitle = 'Image Export';
 
+  // Web Pages
+  static const String invalidLink = 'Invalid Link';
+  static const String invalidLinkMessage = 'This countdown link is not valid.';
+  static const String getTheApp = 'Get the App';
+  static const String createYourOwnCountdown = 'Create your own countdown';
+  static const String countdownNotFound = 'Countdown Not Found';
+  static const String countdownNotFoundMessage = 'This countdown may have been deleted or the link is incorrect.';
+  static const String oops = 'Oops!';
+  static const String failedToLoadCountdown = 'Failed to load countdown. Please try again.';
+  static const String tryAgain = 'Try Again';
+
   // Errors
   static const String errorGeneric = 'Something went wrong';
-  static const String errorNetwork = 'Network error. Please try again.';
+  static const String errorNetwork = 'Network error. Please check your internet connection.';
+  static const String errorNetworkShort = 'Network error. Please check your internet connection.';
+  static const String errorRateLimit = 'Too many requests. Please try again in a moment.';
+  static const String errorNotFound = 'Content not found.';
+  static const String errorUnexpected = 'An unexpected error occurred.';
   static const String errorLoadingEvent = 'Failed to load countdown';
   static const String errorSharingEvent = 'Failed to share countdown';
   static const String errorDeletingEvent = 'Failed to delete countdown';
@@ -131,6 +154,7 @@ class AppStrings {
   static const String errorTimeoutMessage = 'Connection timeout. Please try again';
   static const String errorUnknownMessage = 'An unexpected error occurred';
   static const String retryButton = 'Retry';
+  static const String errorCreateShareLink = 'Failed to create shareable link. Please try again.';
 
   // Menu
   static const String restorePurchases = 'Restore Purchases';
