@@ -25,9 +25,7 @@ class DateTimePicker {
         return Theme(
           data: Theme.of(context).copyWith(
             datePickerTheme: DatePickerThemeData(
-              backgroundColor: Theme.of(context).brightness == Brightness.light
-                  ? AppColors.cardLight
-                  : AppColors.cardDark,
+              backgroundColor: AppColors.cardDark,
               shape: RoundedRectangleBorder(
                 borderRadius:
                     BorderRadius.circular(AppConstants.borderRadiusLarge),
@@ -54,17 +52,12 @@ class DateTimePicker {
           return Theme(
             data: Theme.of(context).copyWith(
               timePickerTheme: TimePickerThemeData(
-                backgroundColor: Theme.of(context).brightness == Brightness.light
-                    ? AppColors.cardLight
-                    : AppColors.cardDark,
+                backgroundColor: AppColors.cardDark,
                 shape: RoundedRectangleBorder(
                   borderRadius:
                       BorderRadius.circular(AppConstants.borderRadiusLarge),
                 ),
-                dialBackgroundColor:
-                    Theme.of(context).brightness == Brightness.light
-                        ? AppColors.surface
-                        : AppColors.surfaceDark,
+                dialBackgroundColor: AppColors.surfaceDark,
                 hourMinuteColor: AppColors.primary.withValues(alpha: 0.1),
                 hourMinuteTextColor: AppColors.primary,
                 dayPeriodColor: AppColors.primary.withValues(alpha: 0.1),

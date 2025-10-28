@@ -44,8 +44,8 @@ class _CountdownAppState extends State<CountdownApp> {
     return GetMaterialApp(
       title: AppStrings.appName,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      theme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
       home: _isInitialized
           ? const HomeScreen()
           : const Scaffold(

@@ -174,13 +174,6 @@ class CreateEditEventScreen extends StatelessWidget {
             elevation: 0,
             scrolledUnderElevation: 0,
             surfaceTintColor: Colors.transparent,
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(1),
-              child: Container(
-                height: 1,
-                color: Colors.grey.withValues(alpha: 0.2),
-              ),
-            ),
           ),
           body: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),

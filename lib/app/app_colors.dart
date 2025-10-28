@@ -56,6 +56,12 @@ class AppColors {
     Color(0xFFFFB74D), // Orange
     Color(0xFFFFD54F), // Amber
     Color(0xFFFFE082), // Yellow
+    Color(0xFFFF7675), // Coral
+    Color(0xFFEC407A), // Rose
+    Color(0xFFCDDC39), // Lime
+    Color(0xFF90CAF9), // Sky Blue
+    Color(0xFFFFAB91), // Peach
+    Color(0xFFCE93D8), // Lavender
   ];
 
   static const List<Color> proGradientColors = [

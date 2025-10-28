@@ -82,14 +82,29 @@ class EventListItem extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppConstants.paddingMedium,
-                vertical: AppConstants.paddingMedium,
+                vertical: AppConstants.paddingSmall,
               ),
               child: Row(
                 children: [
-                  // Emoji
-                  Text(event.emoji, style: const TextStyle(fontSize: 40)),
-                  const SizedBox(width: AppConstants.paddingLarge),
-
+                  // Emoji in circular container
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.dividerDark,
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        event.emoji,
+                        style: const TextStyle(fontSize: 32),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppConstants.paddingMedium),
                   // Content
                   Expanded(
                     child: Column(
@@ -97,6 +112,16 @@ class EventListItem extends StatelessWidget {
                       children: [
                         Row(
                           children: [
+                            // Color line indicator (height of title)
+                            Container(
+                              width: 4,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: event.color,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
                             Flexible(
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -137,30 +162,21 @@ class EventListItem extends StatelessWidget {
                                     : AppColors.textSecondary,
                                 fontWeight: FontWeight.w500,
                               ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: event.color.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            vm.formattedDate,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  color: event.color,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                          ),
+                        const SizedBox(height: 4),
+                        Text(
+                          vm.formattedDate,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w500),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
-
+                  const SizedBox(width: AppConstants.paddingSmall),
                   // Chevron icon
                   Icon(
                     Icons.chevron_right,

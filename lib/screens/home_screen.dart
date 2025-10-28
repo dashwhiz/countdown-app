@@ -9,10 +9,11 @@ import '../app/app_strings.dart';
 import '../models/countdown_event.dart';
 import '../repositories/events_repo.dart';
 import '../utils/operation_scope.dart';
+import '../widgets/all_events_section.dart';
 import '../widgets/app_confirmation_dialog.dart';
 import '../widgets/app_future_builder.dart';
 import '../widgets/app_menu_button.dart';
-import '../widgets/event_list_item.dart';
+import '../widgets/pinned_events_section.dart';
 import 'create_edit_event_screen.dart';
 
 class HomeController extends GetxController {
@@ -110,20 +111,34 @@ class HomeScreen extends StatelessWidget {
             elevation: 0,
             scrolledUnderElevation: 0,
             surfaceTintColor: Colors.transparent,
-            actions: const [AppMenuButton()],
+            actions: [
+              // Plus button
+              Container(
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  onPressed: () async {
+                    final result = await Get.to(
+                      () => const CreateEditEventScreen(),
+                    );
+                    if (result == true) {
+                      await ctrl.loadEvents();
+                    }
+                  },
+                  padding: const EdgeInsets.all(8),
+                ),
+              ),
+              // Menu button
+              const AppMenuButton(),
+            ],
           ),
           body: AppFutureBuilder<void>(
             future: ctrl.initFuture,
             dataBuilder: (context, _) => _buildBody(context, ctrl),
-          ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () async {
-              final result = await Get.to(() => const CreateEditEventScreen());
-              if (result == true) {
-                await ctrl.loadEvents();
-              }
-            },
-            child: const Icon(Icons.add),
           ),
         );
       },
@@ -140,118 +155,36 @@ class HomeScreen extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          if (ctrl.pinnedEvents.isNotEmpty) ...[
-            const SizedBox(height: AppConstants.paddingMedium),
-            Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.light
-                    ? AppColors.primary.withValues(alpha: 0.04)
-                    : AppColors.surfaceDark.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(
-                  AppConstants.borderRadiusLarge,
-                ),
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(height: AppConstants.paddingMedium),
-                  // Pins header
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppConstants.paddingMedium,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.push_pin_outlined,
-                          size: 20,
-                          color: AppColors.warning,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          AppStrings.pinnedSection,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: AppConstants.paddingMedium),
-                  // Divider under title
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppConstants.paddingMedium,
-                    ),
-                    child: Container(
-                      height: 1,
-                      color: Theme.of(context).brightness == Brightness.light
-                          ? Colors.grey.withValues(alpha: 0.2)
-                          : AppColors.dividerDark,
-                    ),
-                  ),
-                  const SizedBox(height: AppConstants.paddingSmall),
-                  ...ctrl.pinnedEvents.map((event) {
-                    return EventListItem(
-                      event: event,
-                      onTap: () async {
-                        final result = await Get.to(
-                          () => CreateEditEventScreen(eventToEdit: event),
-                        );
-                        if (result == true) {
-                          await ctrl.loadEvents();
-                        }
-                      },
-                      onDeleteConfirmed: () =>
-                          _showDeleteConfirmation(context, event, ctrl),
-                      onDismissed: () {
-                        // Item has been dismissed, controller will update
-                      },
-                      onTogglePin: () => ctrl.togglePin(event.id),
-                      showDivider: false,
-                    );
-                  }),
-                  const SizedBox(height: AppConstants.paddingSmall),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppConstants.paddingLarge),
-          ],
-          if (ctrl.unpinnedEvents.isNotEmpty) ...[
-            const SizedBox(height: AppConstants.paddingSmall),
-            // All section header
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppConstants.paddingMedium,
-                vertical: AppConstants.paddingMedium,
-              ),
-              child: Text(
-                AppStrings.allSection,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-              ),
-            ),
-            ...ctrl.unpinnedEvents.map((event) {
-              return EventListItem(
-                event: event,
-                onTap: () async {
-                  final result = await Get.to(
-                    () => CreateEditEventScreen(eventToEdit: event),
-                  );
-                  if (result == true) {
-                    await ctrl.loadEvents();
-                  }
-                },
-                onDeleteConfirmed: () =>
-                    _showDeleteConfirmation(context, event, ctrl),
-                onDismissed: () {
-                  // Item has been dismissed, controller will update
-                },
-                onTogglePin: () => ctrl.togglePin(event.id),
-                showDivider: false,
+          SizedBox(height: 8),
+          PinnedEventsSection(
+            pinnedEvents: ctrl.pinnedEvents,
+            onEventTap: (event) async {
+              final result = await Get.to(
+                () => CreateEditEventScreen(eventToEdit: event),
               );
-            }),
-          ],
-          const SizedBox(height: 80), // Bottom padding for FAB
+              if (result == true) {
+                await ctrl.loadEvents();
+              }
+            },
+            onDeleteConfirmed: (event) =>
+                _showDeleteConfirmation(context, event, ctrl),
+            onTogglePin: ctrl.togglePin,
+          ),
+          AllEventsSection(
+            unpinnedEvents: ctrl.unpinnedEvents,
+            onEventTap: (event) async {
+              final result = await Get.to(
+                () => CreateEditEventScreen(eventToEdit: event),
+              );
+              if (result == true) {
+                await ctrl.loadEvents();
+              }
+            },
+            onDeleteConfirmed: (event) =>
+                _showDeleteConfirmation(context, event, ctrl),
+            onTogglePin: ctrl.togglePin,
+          ),
+          const SizedBox(height: AppConstants.paddingLarge),
         ],
       ),
     );
