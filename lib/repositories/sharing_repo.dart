@@ -1,89 +1,227 @@
+import 'dart:convert';
+import 'package:appwrite/appwrite.dart';
+import 'package:crypto/crypto.dart';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
-import '../api/server_api.dart';
 import '../app/app_logger.dart';
-import '../app/app_strings.dart';
 import '../models/countdown_event.dart';
-import '../services/storage_service.dart';
+import '../services/appwrite_service.dart';
 
+/// Repository for managing shared countdown pages and reactions
 class SharingRepo {
-  final ServerAPI _api = ServerAPI();
-  final StorageService _storage = Get.find<StorageService>();
+  final AppwriteService _appwrite = Get.find<AppwriteService>();
 
-  Future<String?> shareEvent(CountdownEvent event) async {
+  /// Create or get existing share slug for an event
+  ///
+  /// Returns the slug that can be used in URLs like: https://yourapp.com/?id=slug
+  Future<String?> createOrGetShareSlug(CountdownEvent event) async {
     try {
-      if (event.shareSlug != null) {
-        AppLogger.info('Event already shared: ${event.shareSlug}');
-        return '${AppStrings.shareUrlBase}/?id=${event.shareSlug}';
+      AppLogger.info('[SharingRepo] Creating share for event: ${event.title}');
+
+      // If event already has a slug, return it
+      if (event.shareSlug != null && event.shareSlug!.isNotEmpty) {
+        AppLogger.debug('[SharingRepo] Event already has slug: ${event.shareSlug}');
+        return event.shareSlug;
       }
 
-      final slug = const Uuid().v4().substring(0, 8);
-      AppLogger.info('Creating share for event: ${event.title} (slug: $slug)');
+      // Generate new slug
+      final slug = _generateSlug();
+      AppLogger.debug('[SharingRepo] Generated new slug: $slug');
 
-      await _api.createSharedEvent(
-        slug: slug,
-        title: event.title,
-        targetDate: event.targetDate.toIso8601String(),
-        timezone: event.timezone,
-        emoji: event.emoji,
-        colorValue: event.colorValue,
-        themeId: event.themeId,
-        vanitySlug: event.vanitySlug,
+      // Create document in Appwrite
+      final document = await _appwrite.databases.createDocument(
+        databaseId: _appwrite.databaseId,
+        collectionId: _appwrite.sharedEventsCollectionId,
+        documentId: ID.unique(),
+        data: {
+          'slug': slug,
+          'title': event.title,
+          'targetDate': event.targetDate.toIso8601String(),
+          'timezone': event.timezone,
+          'emoji': event.emoji,
+          'colorValue': event.colorValue,
+          'reactionCount': 0,
+        },
       );
 
-      final updatedEvent = event.copyWith(shareSlug: slug);
-      await _storage.saveEvent(updatedEvent);
-
-      return '${AppStrings.shareUrlBase}/?id=$slug';
+      AppLogger.info('[SharingRepo] Share created successfully: $slug');
+      return document.data['slug'] as String;
     } catch (e, stackTrace) {
-      AppLogger.error('Failed to share event', e, stackTrace);
-      return null;
+      AppLogger.error('[SharingRepo] Failed to create share', e, stackTrace);
+
+      // Check for specific error types
+      if (AppwriteService.isNetworkError(e)) {
+        throw Exception('Network error. Please check your internet connection.');
+      } else if (AppwriteService.isRateLimitError(e)) {
+        throw Exception('Too many requests. Please try again in a moment.');
+      } else {
+        throw Exception('Failed to create shareable link. Please try again.');
+      }
     }
   }
 
-  Future<CountdownEvent?> getSharedEvent(String slug) async {
+  /// Get shared event by slug
+  ///
+  /// Used by web page to display the countdown
+  Future<Map<String, dynamic>?> getSharedEvent(String slug) async {
     try {
-      AppLogger.debug('Fetching shared event: $slug');
-      final doc = await _api.getSharedEvent(slug);
+      AppLogger.debug('[SharingRepo] Fetching shared event: $slug');
 
-      return CountdownEvent.fromJson({
-        'id': doc.data['slug'],
+      // Query by slug
+      final result = await _appwrite.databases.listDocuments(
+        databaseId: _appwrite.databaseId,
+        collectionId: _appwrite.sharedEventsCollectionId,
+        queries: [
+          Query.equal('slug', slug),
+          Query.limit(1),
+        ],
+      );
+
+      if (result.documents.isEmpty) {
+        AppLogger.warning('[SharingRepo] Shared event not found: $slug');
+        return null;
+      }
+
+      final doc = result.documents.first;
+      AppLogger.debug('[SharingRepo] Found shared event: ${doc.data['title']}');
+
+      return {
+        'id': doc.$id,
+        'slug': doc.data['slug'],
         'title': doc.data['title'],
-        'targetDate': doc.data['targetDate'],
+        'targetDate': DateTime.parse(doc.data['targetDate']),
         'timezone': doc.data['timezone'],
-        'colorValue': doc.data['colorValue'],
         'emoji': doc.data['emoji'],
-        'isPinned': false,
-        'shareSlug': doc.data['slug'],
-        'vanitySlug': doc.data['vanitySlug'],
-        'themeId': doc.data['themeId'],
-        'createdAt': DateTime.now().toIso8601String(),
-      });
+        'colorValue': doc.data['colorValue'],
+        'reactionCount': doc.data['reactionCount'] ?? 0,
+      };
     } catch (e, stackTrace) {
-      AppLogger.warning('Failed to get shared event: $slug', e, stackTrace);
-      return null;
+      AppLogger.error('[SharingRepo] Failed to get shared event', e, stackTrace);
+
+      if (AppwriteService.isNotFoundError(e)) {
+        return null;
+      }
+
+      rethrow;
     }
   }
 
-  Future<int> getReactionCount(String eventSlug) async {
+  /// Add reaction to a shared event
+  ///
+  /// Uses IP hashing for privacy and rate limiting
+  /// Returns true if reaction was added, false if rate limited
+  Future<bool> addReaction(String slug, String ipAddress) async {
     try {
-      AppLogger.debug('Getting reaction count for: $eventSlug');
-      final result = await _api.getReactions(eventSlug);
-      return result.total;
+      AppLogger.debug('[SharingRepo] Adding reaction to: $slug');
+
+      // Hash IP for privacy
+      final ipHash = _hashIp(ipAddress);
+
+      // Check if this IP already reacted in the last hour
+      final oneHourAgo = DateTime.now().subtract(const Duration(hours: 1));
+      final existingReactions = await _appwrite.databases.listDocuments(
+        databaseId: _appwrite.databaseId,
+        collectionId: _appwrite.reactionsCollectionId,
+        queries: [
+          Query.equal('eventSlug', slug),
+          Query.equal('ipHash', ipHash),
+          Query.greaterThan('timestamp', oneHourAgo.toIso8601String()),
+          Query.limit(1),
+        ],
+      );
+
+      if (existingReactions.documents.isNotEmpty) {
+        AppLogger.warning('[SharingRepo] IP already reacted recently: $ipHash');
+        return false; // Rate limited
+      }
+
+      // Add reaction document
+      await _appwrite.databases.createDocument(
+        databaseId: _appwrite.databaseId,
+        collectionId: _appwrite.reactionsCollectionId,
+        documentId: ID.unique(),
+        data: {
+          'eventSlug': slug,
+          'ipHash': ipHash,
+          'timestamp': DateTime.now().toIso8601String(),
+        },
+      );
+
+      // Increment reaction count on shared event
+      await _incrementReactionCount(slug);
+
+      AppLogger.info('[SharingRepo] Reaction added successfully');
+      return true;
     } catch (e, stackTrace) {
-      AppLogger.warning('Failed to get reaction count', e, stackTrace);
+      AppLogger.error('[SharingRepo] Failed to add reaction', e, stackTrace);
+
+      if (AppwriteService.isRateLimitError(e)) {
+        return false; // Rate limited by Appwrite
+      }
+
+      rethrow;
+    }
+  }
+
+  /// Get reaction count for a shared event
+  Future<int> getReactionCount(String slug) async {
+    try {
+      final event = await getSharedEvent(slug);
+      return event?['reactionCount'] ?? 0;
+    } catch (e) {
+      AppLogger.error('[SharingRepo] Failed to get reaction count', e);
       return 0;
     }
   }
 
-  Future<bool> addReaction(String eventSlug, String ipHash) async {
+  /// Increment reaction count on shared event document
+  Future<void> _incrementReactionCount(String slug) async {
     try {
-      AppLogger.info('Adding reaction for event: $eventSlug');
-      await _api.addReaction(eventSlug: eventSlug, ipHash: ipHash);
-      return true;
-    } catch (e, stackTrace) {
-      AppLogger.error('Failed to add reaction', e, stackTrace);
-      return false;
+      // Get current event
+      final result = await _appwrite.databases.listDocuments(
+        databaseId: _appwrite.databaseId,
+        collectionId: _appwrite.sharedEventsCollectionId,
+        queries: [
+          Query.equal('slug', slug),
+          Query.limit(1),
+        ],
+      );
+
+      if (result.documents.isEmpty) return;
+
+      final doc = result.documents.first;
+      final currentCount = doc.data['reactionCount'] ?? 0;
+
+      // Update with incremented count
+      await _appwrite.databases.updateDocument(
+        databaseId: _appwrite.databaseId,
+        collectionId: _appwrite.sharedEventsCollectionId,
+        documentId: doc.$id,
+        data: {
+          'reactionCount': currentCount + 1,
+        },
+      );
+    } catch (e) {
+      AppLogger.error('[SharingRepo] Failed to increment reaction count', e);
+      // Don't throw - reaction was already created, this is just a counter update
     }
+  }
+
+  /// Generate random URL-safe slug
+  String _generateSlug() {
+    const uuid = Uuid();
+    final id = uuid.v4().replaceAll('-', '');
+    // Take first 12 characters for shorter URLs
+    return id.substring(0, 12);
+  }
+
+  /// Hash IP address for privacy
+  ///
+  /// Uses SHA256 with salt for one-way hashing
+  String _hashIp(String ipAddress) {
+    const salt = 'countdown_app_salt_2025'; // Change this to something unique
+    final bytes = utf8.encode(ipAddress + salt);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
   }
 }

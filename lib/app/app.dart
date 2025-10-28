@@ -5,6 +5,7 @@ import 'app_logger.dart';
 import 'app_strings.dart';
 import 'app_theme.dart';
 import '../services/storage_service.dart';
+import '../services/appwrite_service.dart';
 import '../screens/splash_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/init_error_screen.dart';
@@ -38,6 +39,9 @@ class _CountdownAppState extends State<CountdownApp> {
 
       // Initialize storage service
       await Get.putAsync(() => StorageService().init());
+
+      // Initialize Appwrite service
+      await Get.putAsync(() => AppwriteService().init());
 
       AppLogger.info('✅ App initialized successfully');
 
