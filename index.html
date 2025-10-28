@@ -33,16 +33,6 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <script>
-    // Handle redirected 404
-    (function() {
-      var redirect = sessionStorage.getItem('redirect');
-      if (redirect) {
-        sessionStorage.removeItem('redirect');
-        history.replaceState(null, null, redirect.replace(location.origin, ''));
-      }
-    })();
-  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
