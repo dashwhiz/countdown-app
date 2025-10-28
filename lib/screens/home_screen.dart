@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../app/app_colors.dart';
 import '../app/app_constants.dart';
 import '../app/app_error_listeners.dart';
+import '../app/app_logger.dart';
 import '../app/app_progress_listeners.dart';
 import '../app/app_strings.dart';
 import '../models/countdown_event.dart';
@@ -10,6 +11,7 @@ import '../repositories/events_repo.dart';
 import '../utils/operation_scope.dart';
 import '../widgets/app_future_builder.dart';
 import '../widgets/event_list_item.dart';
+import 'create_edit_event_screen.dart';
 
 class HomeController extends GetxController {
   final EventsRepo _repo = EventsRepo();
@@ -67,26 +69,24 @@ class HomeController extends GetxController {
   }
 
   Future<void> togglePin(String id) async {
-    final result = await scope(
-      scope: () async => await _repo.togglePin(id),
-      progressListener: _progressListener,
-      errorListener: _errorListener,
-    );
-
-    if (result.success && result.result == true) {
-      await loadEvents();
+    try {
+      final success = await _repo.togglePin(id);
+      if (success) {
+        await loadEvents();
+      }
+    } catch (e, stackTrace) {
+      AppLogger.error('Failed to toggle pin', e, stackTrace);
     }
   }
 
   Future<void> deleteEvent(String id) async {
-    final result = await scope(
-      scope: () async => await _repo.deleteEvent(id),
-      progressListener: _progressListener,
-      errorListener: _errorListener,
-    );
-
-    if (result.success && result.result == true) {
-      await loadEvents();
+    try {
+      final success = await _repo.deleteEvent(id);
+      if (success) {
+        await loadEvents();
+      }
+    } catch (e, stackTrace) {
+      AppLogger.error('Failed to delete event', e, stackTrace);
     }
   }
 }
@@ -146,8 +146,11 @@ class HomeScreen extends StatelessWidget {
             dataBuilder: (context, _) => _buildBody(context, ctrl),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              // TODO: Navigate to create screen
+            onPressed: () async {
+              final result = await Get.to(() => const CreateEditEventScreen());
+              if (result == true) {
+                await ctrl.loadEvents();
+              }
             },
             child: const Icon(Icons.add),
           ),
@@ -183,8 +186,13 @@ class HomeScreen extends StatelessWidget {
 
               return EventListItem(
                 event: event,
-                onTap: () {
-                  // TODO: Navigate to detail screen
+                onTap: () async {
+                  final result = await Get.to(
+                    () => CreateEditEventScreen(eventToEdit: event),
+                  );
+                  if (result == true) {
+                    await ctrl.loadEvents();
+                  }
                 },
                 onDeleteConfirmed: () =>
                     _showDeleteConfirmation(context, event, ctrl),
@@ -197,32 +205,41 @@ class HomeScreen extends StatelessWidget {
             }),
             const SizedBox(height: AppConstants.paddingLarge),
           ],
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppConstants.paddingMedium,
-              vertical: AppConstants.paddingSmall,
+          if (ctrl.unpinnedEvents.isNotEmpty) ...[
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                AppConstants.paddingMedium,
+                ctrl.pinnedEvents.isEmpty ? AppConstants.paddingLarge : 0,
+                AppConstants.paddingMedium,
+                AppConstants.paddingSmall,
+              ),
+              child: _buildSectionHeader(context, AppStrings.allCountdowns),
             ),
-            child: _buildSectionHeader(context, AppStrings.allCountdowns),
-          ),
-          ...ctrl.unpinnedEvents.asMap().entries.map((entry) {
-            final index = entry.key;
-            final event = entry.value;
-            final isLast = index == ctrl.unpinnedEvents.length - 1;
+            ...ctrl.unpinnedEvents.asMap().entries.map((entry) {
+              final index = entry.key;
+              final event = entry.value;
+              final isLast = index == ctrl.unpinnedEvents.length - 1;
 
-            return EventListItem(
-              event: event,
-              onTap: () {
-                // TODO: Navigate to detail screen
-              },
-              onDeleteConfirmed: () =>
-                  _showDeleteConfirmation(context, event, ctrl),
-              onDismissed: () {
-                // Item has been dismissed, controller will update
-              },
-              onTogglePin: () => ctrl.togglePin(event.id),
-              showDivider: !isLast,
-            );
-          }),
+              return EventListItem(
+                event: event,
+                onTap: () async {
+                  final result = await Get.to(
+                    () => CreateEditEventScreen(eventToEdit: event),
+                  );
+                  if (result == true) {
+                    await ctrl.loadEvents();
+                  }
+                },
+                onDeleteConfirmed: () =>
+                    _showDeleteConfirmation(context, event, ctrl),
+                onDismissed: () {
+                  // Item has been dismissed, controller will update
+                },
+                onTogglePin: () => ctrl.togglePin(event.id),
+                showDivider: !isLast,
+              );
+            }),
+          ],
           const SizedBox(height: 80), // Bottom padding for FAB
         ],
       ),

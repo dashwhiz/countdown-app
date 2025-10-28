@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:timezone/data/latest.dart' as tz;
 import 'app_logger.dart';
 import 'app_strings.dart';
 import 'app_theme.dart';
@@ -25,6 +26,9 @@ class _CountdownAppState extends State<CountdownApp> {
   Future<void> _initializeApp() async {
     try {
       AppLogger.info('🚀 Starting Countdown App...');
+
+      // Initialize timezone database
+      tz.initializeTimeZones();
 
       await Get.putAsync(() => StorageService().init());
 

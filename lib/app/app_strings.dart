@@ -43,8 +43,8 @@ class AppStrings {
   static const String deleteCountdownMessage = 'This action cannot be undone.';
 
   // Create/Edit Screen
-  static const String createTitle = 'New Countdown';
-  static const String editTitle = 'Edit Countdown';
+  static const String createTitle = 'Create';
+  static const String editTitle = 'Edit';
   static const String eventTitleLabel = 'Event Title';
   static const String eventTitleHint = 'Enter event name';
   static const String dateTimeLabel = 'Date & Time';

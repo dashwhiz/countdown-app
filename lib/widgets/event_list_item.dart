@@ -55,8 +55,8 @@ class EventListItem extends StatelessWidget {
               child: Row(
                 children: [
                   // Emoji
-                  Text(event.emoji, style: const TextStyle(fontSize: 32)),
-                  const SizedBox(width: AppConstants.paddingMedium),
+                  Text(event.emoji, style: const TextStyle(fontSize: 40)),
+                  const SizedBox(width: AppConstants.paddingLarge),
 
                   // Content
                   Expanded(
@@ -122,7 +122,7 @@ class EventListItem extends StatelessWidget {
                   horizontal: AppConstants.paddingMedium,
                 ),
                 child: Container(
-                  height: 0.5,
+                  height: 1,
                   color: Colors.grey.withValues(alpha: 0.2),
                 ),
               ),
