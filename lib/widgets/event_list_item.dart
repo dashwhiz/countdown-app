@@ -3,6 +3,7 @@ import '../app/app_colors.dart';
 import '../app/app_constants.dart';
 import '../app/app_strings.dart';
 import '../models/countdown_event.dart';
+import '../utils/text_helpers.dart';
 import '../view_models/event_view_model.dart';
 
 class EventListItem extends StatelessWidget {
@@ -94,21 +95,47 @@ class EventListItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          event.title,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      TextHelpers.capitalizeFirst(event.title),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  if (event.isPinned) ...[
+                                    const SizedBox(width: 6),
+                                    Icon(
+                                      Icons.push_pin,
+                                      size: 20,
+                                      color: AppColors.warning,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Text(
                           vm.formattedTimeRemaining,
-                          style: Theme.of(context).textTheme.bodyMedium
+                          style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(
                                 color: event.hasEnded
                                     ? AppColors.error
                                     : AppColors.textSecondary,
+                                fontWeight: FontWeight.w500,
                               ),
                         ),
                         const SizedBox(height: 6),
@@ -123,7 +150,7 @@ class EventListItem extends StatelessWidget {
                           ),
                           child: Text(
                             vm.formattedDate,
-                            style: Theme.of(context).textTheme.bodySmall
+                            style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(
                                   color: event.color,
                                   fontWeight: FontWeight.w500,

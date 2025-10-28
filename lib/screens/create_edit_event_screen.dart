@@ -13,6 +13,7 @@ import '../models/countdown_event.dart';
 import '../repositories/events_repo.dart';
 import '../utils/operation_scope.dart';
 import '../widgets/color_picker_grid.dart';
+import '../widgets/date_time_picker.dart';
 import '../widgets/emoji_picker_grid.dart';
 
 class CreateEditEventController extends GetxController {
@@ -107,55 +108,17 @@ class CreateEditEventController extends GetxController {
     final now = DateTime.now();
     final minimumDate = now.add(const Duration(hours: 24));
 
-    // Use Cupertino date picker
-    await showCupertinoModalPopup<void>(
+    final DateTime? picked = await DateTimePicker.show(
       context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 300,
-          color: Theme.of(context).scaffoldBackgroundColor,
-          child: Column(
-            children: [
-              Container(
-                height: 50,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      child: const Text('Cancel'),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      child: const Text('Done'),
-                      onPressed: () {
-                        update();
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.dateAndTime,
-                  initialDateTime: selectedDate.isBefore(minimumDate)
-                      ? minimumDate
-                      : selectedDate,
-                  minimumDate: minimumDate,
-                  maximumDate: now.add(const Duration(days: 3650)),
-                  onDateTimeChanged: (DateTime newDateTime) {
-                    selectedDate = newDateTime;
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+      initialDateTime: selectedDate,
+      minimumDateTime: minimumDate,
+      maximumDateTime: now.add(const Duration(days: 3650)),
     );
+
+    if (picked != null) {
+      selectedDate = picked;
+      update();
+    }
   }
 
   Future<void> saveEvent() async {
@@ -236,13 +199,14 @@ class CreateEditEventScreen extends StatelessWidget {
                     TextFormField(
                       controller: ctrl.titleController,
                       focusNode: ctrl.titleFocusNode,
+                      textCapitalization: TextCapitalization.sentences,
                       decoration: InputDecoration(
                         hintText: AppStrings.eventTitleHint,
                         filled: false,
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
-                            color: Colors.grey.shade400,
+                            color: Colors.grey.shade600,
                             width: 1,
                           ),
                         ),
@@ -288,7 +252,7 @@ class CreateEditEventScreen extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: Colors.grey.shade400,
+                            color: Colors.grey.shade600,
                             width: 1,
                           ),
                           borderRadius: BorderRadius.circular(8),

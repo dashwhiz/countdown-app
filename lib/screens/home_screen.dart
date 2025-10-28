@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../app/app_colors.dart';
 import '../app/app_constants.dart';
 import '../app/app_error_listeners.dart';
 import '../app/app_logger.dart';
@@ -10,6 +11,7 @@ import '../repositories/events_repo.dart';
 import '../utils/operation_scope.dart';
 import '../widgets/app_confirmation_dialog.dart';
 import '../widgets/app_future_builder.dart';
+import '../widgets/app_menu_button.dart';
 import '../widgets/event_list_item.dart';
 import 'create_edit_event_screen.dart';
 
@@ -108,38 +110,7 @@ class HomeScreen extends StatelessWidget {
             elevation: 0,
             scrolledUnderElevation: 0,
             surfaceTintColor: Colors.transparent,
-            actions: [
-              PopupMenuButton<String>(
-                onSelected: (value) {
-                  // TODO: Implement menu actions
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: 'restore',
-                    child: Text(AppStrings.restorePurchases),
-                  ),
-                  const PopupMenuItem(
-                    value: 'privacy',
-                    child: Text(AppStrings.privacyPolicy),
-                  ),
-                  const PopupMenuItem(
-                    value: 'support',
-                    child: Text(AppStrings.helpAndSupport),
-                  ),
-                  const PopupMenuItem(
-                    value: 'about',
-                    child: Text(AppStrings.about),
-                  ),
-                ],
-              ),
-            ],
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(1),
-              child: Container(
-                height: 1,
-                color: Colors.grey.withValues(alpha: 0.2),
-              ),
-            ),
+            actions: const [AppMenuButton()],
           ),
           body: AppFutureBuilder<void>(
             future: ctrl.initFuture,
@@ -170,56 +141,96 @@ class HomeScreen extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           if (ctrl.pinnedEvents.isNotEmpty) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppConstants.paddingMedium,
-                AppConstants.paddingLarge,
-                AppConstants.paddingMedium,
-                AppConstants.paddingSmall,
+            const SizedBox(height: AppConstants.paddingMedium),
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.light
+                    ? AppColors.primary.withValues(alpha: 0.04)
+                    : AppColors.surfaceDark.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(
+                  AppConstants.borderRadiusLarge,
+                ),
               ),
-              child: _buildSectionHeader(context, AppStrings.pinnedSection),
+              child: Column(
+                children: [
+                  const SizedBox(height: AppConstants.paddingMedium),
+                  // Pins header
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppConstants.paddingMedium,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.push_pin_outlined,
+                          size: 20,
+                          color: AppColors.warning,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          AppStrings.pinnedSection,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppConstants.paddingMedium),
+                  // Divider under title
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppConstants.paddingMedium,
+                    ),
+                    child: Container(
+                      height: 1,
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.grey.withValues(alpha: 0.2)
+                          : AppColors.dividerDark,
+                    ),
+                  ),
+                  const SizedBox(height: AppConstants.paddingSmall),
+                  ...ctrl.pinnedEvents.map((event) {
+                    return EventListItem(
+                      event: event,
+                      onTap: () async {
+                        final result = await Get.to(
+                          () => CreateEditEventScreen(eventToEdit: event),
+                        );
+                        if (result == true) {
+                          await ctrl.loadEvents();
+                        }
+                      },
+                      onDeleteConfirmed: () =>
+                          _showDeleteConfirmation(context, event, ctrl),
+                      onDismissed: () {
+                        // Item has been dismissed, controller will update
+                      },
+                      onTogglePin: () => ctrl.togglePin(event.id),
+                      showDivider: false,
+                    );
+                  }),
+                  const SizedBox(height: AppConstants.paddingSmall),
+                ],
+              ),
             ),
-            ...ctrl.pinnedEvents.asMap().entries.map((entry) {
-              final index = entry.key;
-              final event = entry.value;
-              final isLast = index == ctrl.pinnedEvents.length - 1;
-
-              return EventListItem(
-                event: event,
-                onTap: () async {
-                  final result = await Get.to(
-                    () => CreateEditEventScreen(eventToEdit: event),
-                  );
-                  if (result == true) {
-                    await ctrl.loadEvents();
-                  }
-                },
-                onDeleteConfirmed: () =>
-                    _showDeleteConfirmation(context, event, ctrl),
-                onDismissed: () {
-                  // Item has been dismissed, controller will update
-                },
-                onTogglePin: () => ctrl.togglePin(event.id),
-                showDivider: !isLast,
-              );
-            }),
             const SizedBox(height: AppConstants.paddingLarge),
           ],
           if (ctrl.unpinnedEvents.isNotEmpty) ...[
+            const SizedBox(height: AppConstants.paddingSmall),
+            // All section header
             Padding(
-              padding: EdgeInsets.fromLTRB(
-                AppConstants.paddingMedium,
-                ctrl.pinnedEvents.isEmpty ? AppConstants.paddingLarge : 0,
-                AppConstants.paddingMedium,
-                AppConstants.paddingSmall,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppConstants.paddingMedium,
+                vertical: AppConstants.paddingMedium,
               ),
-              child: _buildSectionHeader(context, AppStrings.allCountdowns),
+              child: Text(
+                AppStrings.allSection,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
             ),
-            ...ctrl.unpinnedEvents.asMap().entries.map((entry) {
-              final index = entry.key;
-              final event = entry.value;
-              final isLast = index == ctrl.unpinnedEvents.length - 1;
-
+            ...ctrl.unpinnedEvents.map((event) {
               return EventListItem(
                 event: event,
                 onTap: () async {
@@ -236,7 +247,7 @@ class HomeScreen extends StatelessWidget {
                   // Item has been dismissed, controller will update
                 },
                 onTogglePin: () => ctrl.togglePin(event.id),
-                showDivider: !isLast,
+                showDivider: false,
               );
             }),
           ],
@@ -268,15 +279,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Text(
-      title,
-      style: Theme.of(
-        context,
-      ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 

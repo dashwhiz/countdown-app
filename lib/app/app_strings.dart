@@ -35,8 +35,8 @@ class AppStrings {
 
   // Home Screen
   static const String homeTitle = 'My Countdowns';
-  static const String pinnedSection = 'Pinned';
-  static const String allCountdowns = 'All Countdowns';
+  static const String pinnedSection = 'Pins';
+  static const String allSection = 'All';
   static const String emptyStateTitle = 'No countdowns yet';
   static const String emptyStateMessage = 'Tap + to create your first countdown';
   static const String deleteCountdownTitle = 'Delete Countdown?';
