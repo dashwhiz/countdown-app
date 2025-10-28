@@ -41,6 +41,8 @@ class AppStrings {
   static const String emptyStateMessage = 'Tap + to create your first countdown';
   static const String deleteCountdownTitle = 'Delete Countdown?';
   static const String deleteCountdownMessage = 'This action cannot be undone.';
+  static const String pin = 'Pin';
+  static const String unpin = 'Unpin';
 
   // Create/Edit Screen
   static const String createTitle = 'Create';

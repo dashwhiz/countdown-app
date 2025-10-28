@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../app/app_colors.dart';
 import '../app/app_constants.dart';
 import '../app/app_error_listeners.dart';
 import '../app/app_logger.dart';
@@ -9,6 +8,7 @@ import '../app/app_strings.dart';
 import '../models/countdown_event.dart';
 import '../repositories/events_repo.dart';
 import '../utils/operation_scope.dart';
+import '../widgets/app_confirmation_dialog.dart';
 import '../widgets/app_future_builder.dart';
 import '../widgets/event_list_item.dart';
 import 'create_edit_event_screen.dart';
@@ -285,31 +285,18 @@ class HomeScreen extends StatelessWidget {
     CountdownEvent event,
     HomeController ctrl,
   ) async {
-    final result = await showDialog<bool>(
+    final result = await AppConfirmationDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(AppStrings.deleteCountdownTitle),
-        content: Text(
-          '${AppStrings.deleteCountdownMessage}\n\n"${event.title}"',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text(AppStrings.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context, true);
-            },
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text(AppStrings.delete),
-          ),
-        ],
-      ),
+      icon: Icons.delete_outline,
+      title: AppStrings.deleteCountdownTitle,
+      message: '${AppStrings.deleteCountdownMessage}\n\n"${event.title}"',
+      confirmText: AppStrings.delete,
+      cancelText: AppStrings.cancel,
+      isDestructive: true,
     );
 
     // If user confirmed, delete the event
-    if (result == true) {
+    if (result) {
       await ctrl.deleteEvent(event.id);
       return true; // Allow dismissal
     }

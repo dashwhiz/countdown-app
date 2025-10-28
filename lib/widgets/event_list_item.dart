@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../app/app_constants.dart';
+import '../app/app_strings.dart';
 import '../models/countdown_event.dart';
 import '../view_models/event_view_model.dart';
 
@@ -28,19 +29,49 @@ class EventListItem extends StatelessWidget {
 
     return Dismissible(
       key: ValueKey(event.id),
-      direction: DismissDirection.endToStart,
+      direction: DismissDirection.horizontal,
       background: Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.only(left: 20),
+        color: event.isPinned ? AppColors.warning : AppColors.success,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              event.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
+              color: Colors.white,
+              size: 28,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              event.isPinned ? AppStrings.unpin : AppStrings.pin,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+      secondaryBackground: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
         color: AppColors.error,
         child: const Icon(Icons.delete, color: Colors.white, size: 28),
       ),
       confirmDismiss: (direction) async {
-        // Show confirmation dialog and return result
-        return await onDeleteConfirmed();
+        if (direction == DismissDirection.endToStart) {
+          // Swipe left - delete with confirmation
+          return await onDeleteConfirmed();
+        } else {
+          // Swipe right - pin/unpin immediately
+          onTogglePin();
+          return false; // Don't dismiss, just toggle pin
+        }
       },
       onDismissed: (direction) {
-        // Called after confirmDismiss returns true
+        // Called after confirmDismiss returns true (only for delete)
         onDismissed();
       },
       child: InkWell(
@@ -103,14 +134,11 @@ class EventListItem extends StatelessWidget {
                     ),
                   ),
 
-                  // Pin/Unpin Icon
-                  IconButton(
-                    onPressed: onTogglePin,
-                    icon: Icon(
-                      event.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                      color: event.isPinned ? AppColors.primary : Colors.grey,
-                    ),
-                    tooltip: event.isPinned ? 'Unpin' : 'Pin',
+                  // Chevron icon
+                  Icon(
+                    Icons.chevron_right,
+                    color: Colors.grey.shade400,
+                    size: 24,
                   ),
                 ],
               ),

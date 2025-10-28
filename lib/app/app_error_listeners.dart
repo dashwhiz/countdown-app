@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_strings.dart';
-import '../widgets/app_dialog.dart';
+import '../widgets/app_confirmation_dialog.dart';
 
 /// Abstract class which should display error on [error] function call.
 ///
@@ -60,16 +60,20 @@ abstract class MessagedErrorListener extends ErrorListener {
   }
 }
 
-/// Displays default app dialog via [AppDialog.showError].
+/// Displays default app dialog via [AppConfirmationDialog].
 class DialogErrorListener extends MessagedErrorListener {
   DialogErrorListener(super.context);
 
   @override
   Future<void> onShowError(int code, String message) async {
-    await AppDialog.showError(
-      context,
-      message: message,
+    await AppConfirmationDialog.show(
+      context: context,
+      icon: Icons.error_outline,
       title: AppStrings.errorTitle,
+      message: message,
+      confirmText: AppStrings.ok,
+      cancelText: '',
+      isDestructive: true,
     );
   }
 }
