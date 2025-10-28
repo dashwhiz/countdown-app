@@ -154,6 +154,42 @@ class CreateEditEventController extends GetxController {
       Get.back(result: true);
     }
   }
+
+  Future<void> handleBackNavigation(BuildContext context) async {
+    if (hasChanges) {
+      final shouldDiscard = await _showDiscardChangesDialog(context);
+      if (shouldDiscard) {
+        Get.back(result: false);
+      }
+    } else {
+      Get.back(result: false);
+    }
+  }
+
+  Future<bool> _showDiscardChangesDialog(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.warning_amber_rounded, size: 48, color: AppColors.warning),
+        title: const Text(AppStrings.unsavedChangesTitle),
+        content: const Text(AppStrings.unsavedChangesMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text(AppStrings.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.error,
+            ),
+            child: const Text(AppStrings.discard),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
 }
 
 class CreateEditEventScreen extends StatelessWidget {
@@ -166,22 +202,29 @@ class CreateEditEventScreen extends StatelessWidget {
     return GetBuilder<CreateEditEventController>(
       init: CreateEditEventController(eventToEdit: eventToEdit),
       builder: (ctrl) {
-        return Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              tooltip: AppStrings.cancel,
-              onPressed: () => Get.back(),
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (!didPop) {
+              ctrl.handleBackNavigation(context);
+            }
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                tooltip: AppStrings.cancel,
+                onPressed: () => ctrl.handleBackNavigation(context),
+              ),
+              title: Text(
+                ctrl.screenTitle,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              centerTitle: true,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              surfaceTintColor: Colors.transparent,
             ),
-            title: Text(
-              ctrl.screenTitle,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            centerTitle: true,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            surfaceTintColor: Colors.transparent,
-          ),
           body: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             child: SingleChildScrollView(
@@ -344,6 +387,7 @@ class CreateEditEventScreen extends StatelessWidget {
                 ),
               ),
             ),
+          ),
           ),
         );
       },

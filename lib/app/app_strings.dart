@@ -63,6 +63,9 @@ class AppStrings {
   static const String emojiLabel = 'Emoji';
   static const String pinEvent = 'Pin to Top';
   static const String eventTitleRequired = 'Please enter a title';
+  static const String unsavedChangesTitle = 'Discard Changes?';
+  static const String unsavedChangesMessage = 'You have unsaved changes. Are you sure you want to discard them?';
+  static const String discard = 'Discard';
 
   // Detail Screen
   static const String detailsTitle = 'Details';
