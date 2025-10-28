@@ -7,6 +7,9 @@ import 'app_theme.dart';
 import '../services/storage_service.dart';
 import '../screens/splash_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/init_error_screen.dart';
+
+enum InitState { loading, success, error }
 
 class CountdownApp extends StatefulWidget {
   const CountdownApp({super.key});
@@ -16,7 +19,7 @@ class CountdownApp extends StatefulWidget {
 }
 
 class _CountdownAppState extends State<CountdownApp> {
-  bool _isInitialized = false;
+  InitState _initState = InitState.loading;
 
   @override
   void initState() {
@@ -37,21 +40,38 @@ class _CountdownAppState extends State<CountdownApp> {
       await Get.putAsync(() => StorageService().init());
 
       AppLogger.info('✅ App initialized successfully');
+
+      // Wait minimum 3 seconds for branding/splash
+      final elapsed = DateTime.now().difference(startTime);
+      if (elapsed.inMilliseconds < 3000) {
+        await Future.delayed(
+          Duration(milliseconds: 3000 - elapsed.inMilliseconds),
+        );
+      }
+
+      if (mounted) {
+        setState(() => _initState = InitState.success);
+      }
     } catch (e, stackTrace) {
       AppLogger.fatal('❌ Failed to start app', e, stackTrace);
-    }
 
-    // Wait minimum 3 seconds for branding/splash
-    final elapsed = DateTime.now().difference(startTime);
-    if (elapsed.inMilliseconds < 3000) {
-      await Future.delayed(
-        Duration(milliseconds: 3000 - elapsed.inMilliseconds),
-      );
-    }
+      // Still wait for minimum splash duration before showing error
+      final elapsed = DateTime.now().difference(startTime);
+      if (elapsed.inMilliseconds < 3000) {
+        await Future.delayed(
+          Duration(milliseconds: 3000 - elapsed.inMilliseconds),
+        );
+      }
 
-    if (mounted) {
-      setState(() => _isInitialized = true);
+      if (mounted) {
+        setState(() => _initState = InitState.error);
+      }
     }
+  }
+
+  void _retryInitialization() {
+    setState(() => _initState = InitState.loading);
+    _initializeApp();
   }
 
   @override
@@ -61,7 +81,18 @@ class _CountdownAppState extends State<CountdownApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark,
-      home: _isInitialized ? const HomeScreen() : const SplashScreen(),
+      home: _getScreenForState(),
     );
+  }
+
+  Widget _getScreenForState() {
+    switch (_initState) {
+      case InitState.loading:
+        return const SplashScreen();
+      case InitState.success:
+        return const HomeScreen();
+      case InitState.error:
+        return InitErrorScreen(onRetry: _retryInitialization);
+    }
   }
 }

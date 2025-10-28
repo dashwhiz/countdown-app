@@ -74,7 +74,8 @@ class DateTimePicker {
         },
       );
 
-      if (pickedTime != null) {
+      // Check context is still mounted after second async operation
+      if (pickedTime != null && context.mounted) {
         final newDateTime = DateTime(
           pickedDate.year,
           pickedDate.month,

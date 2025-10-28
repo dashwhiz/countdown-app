@@ -111,6 +111,9 @@ class AppStrings {
   static const String errorLoadingEvent = 'Failed to load countdown';
   static const String errorSharingEvent = 'Failed to share countdown';
   static const String errorDeletingEvent = 'Failed to delete countdown';
+  static const String errorInitialization = 'Failed to Initialize';
+  static const String errorInitializationMessage = 'We couldn\'t start the app. Please try again.';
+  static const String retryButton = 'Retry';
 
   // Menu
   static const String restorePurchases = 'Restore Purchases';

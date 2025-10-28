@@ -48,8 +48,13 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _progressListener = DefaultProgressListener(Get.context!);
-    _errorListener = DialogErrorListener(Get.context!);
+    final context = Get.context;
+    if (context != null) {
+      _progressListener = DefaultProgressListener(context);
+      _errorListener = DialogErrorListener(context);
+    } else {
+      AppLogger.error('Context is null during HomeController initialization');
+    }
     initFuture = _initialize();
   }
 
@@ -160,9 +165,7 @@ class HomeScreen extends StatelessWidget {
           PinnedEventsSection(
             pinnedEvents: ctrl.pinnedEvents,
             onEventTap: (event) async {
-              final result = await Get.to(
-                () => DetailScreen(event: event),
-              );
+              final result = await Get.to(() => DetailScreen(event: event));
               if (result == true) {
                 await ctrl.loadEvents();
               }
@@ -174,9 +177,7 @@ class HomeScreen extends StatelessWidget {
           AllEventsSection(
             unpinnedEvents: ctrl.unpinnedEvents,
             onEventTap: (event) async {
-              final result = await Get.to(
-                () => DetailScreen(event: event),
-              );
+              final result = await Get.to(() => DetailScreen(event: event));
               if (result == true) {
                 await ctrl.loadEvents();
               }

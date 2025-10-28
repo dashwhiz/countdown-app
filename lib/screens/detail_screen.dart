@@ -65,11 +65,11 @@ class DetailScreen extends StatelessWidget {
       init: DetailController(event: event),
       builder: (ctrl) {
         return PopScope(
-          canPop: true,
+          canPop: false,
           onPopInvokedWithResult: (didPop, result) {
-            if (didPop && ctrl.wasEdited) {
-              // Return true to home screen when popping
-              Get.back(result: true);
+            // Only handle if the pop hasn't happened yet
+            if (!didPop) {
+              ctrl.navigateBack();
             }
           },
           child: Scaffold(

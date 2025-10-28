@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../app/app_colors.dart';
 import '../app/app_constants.dart';
 import '../app/app_error_listeners.dart';
+import '../app/app_logger.dart';
 import '../app/app_progress_listeners.dart';
 import '../app/app_strings.dart';
 import '../models/countdown_event.dart';
@@ -41,8 +42,13 @@ class CreateEditEventController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _progressListener = DefaultProgressListener(Get.context!);
-    _errorListener = DialogErrorListener(Get.context!);
+    final context = Get.context;
+    if (context != null) {
+      _progressListener = DefaultProgressListener(context);
+      _errorListener = DialogErrorListener(context);
+    } else {
+      AppLogger.error('Context is null during CreateEditController initialization');
+    }
 
     if (isEditMode) {
       titleController.text = eventToEdit!.title;
