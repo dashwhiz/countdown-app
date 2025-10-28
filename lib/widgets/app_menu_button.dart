@@ -36,6 +36,7 @@ class _AppMenuButtonState extends State<AppMenuButton>
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
+      tooltip: AppStrings.tooltipMenu,
       icon: AnimatedBuilder(
         animation: _scaleAnimation,
         builder: (context, child) {

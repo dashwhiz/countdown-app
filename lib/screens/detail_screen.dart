@@ -76,6 +76,7 @@ class DetailScreen extends StatelessWidget {
             appBar: AppBar(
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
+                tooltip: AppStrings.tooltipBack,
                 onPressed: ctrl.navigateBack,
               ),
               title: const Text(
@@ -95,12 +96,14 @@ class DetailScreen extends StatelessWidget {
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.edit, color: Colors.white),
+                    tooltip: AppStrings.tooltipEditCountdown,
                     onPressed: ctrl.navigateToEdit,
                     padding: const EdgeInsets.all(8),
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.share_outlined),
+                  tooltip: AppStrings.tooltipShareCountdown,
                   onPressed: ctrl.handleShare,
                 ),
                 const SizedBox(width: 8),

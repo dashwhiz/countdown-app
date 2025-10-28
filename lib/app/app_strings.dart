@@ -27,6 +27,14 @@ class AppStrings {
   static const String yes = 'Yes';
   static const String no = 'No';
 
+  // Tooltips
+  static const String tooltipCreateCountdown = 'Create new countdown';
+  static const String tooltipEditCountdown = 'Edit countdown';
+  static const String tooltipShareCountdown = 'Share countdown';
+  static const String tooltipBack = 'Go back';
+  static const String tooltipClose = 'Close';
+  static const String tooltipMenu = 'Menu';
+
   // Dialog Titles
   static const String errorTitle = 'Error';
   static const String successTitle = 'Success';

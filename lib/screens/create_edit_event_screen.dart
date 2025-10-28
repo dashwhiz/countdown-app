@@ -170,6 +170,7 @@ class CreateEditEventScreen extends StatelessWidget {
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
+              tooltip: AppStrings.cancel,
               onPressed: () => Get.back(),
             ),
             title: Text(

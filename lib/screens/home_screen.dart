@@ -127,6 +127,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.add, color: Colors.white),
+                  tooltip: AppStrings.tooltipCreateCountdown,
                   onPressed: () async {
                     final result = await Get.to(
                       () => const CreateEditEventScreen(),

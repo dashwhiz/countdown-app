@@ -193,6 +193,7 @@ class _PinnedEventsModalState extends State<_PinnedEventsModal> {
                     ),
                     child: IconButton(
                       icon: const Icon(Icons.close, size: 20),
+                      tooltip: AppStrings.tooltipClose,
                       onPressed: () => Navigator.pop(context),
                       padding: const EdgeInsets.all(8),
                       constraints: const BoxConstraints(),
