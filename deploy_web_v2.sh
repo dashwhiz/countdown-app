@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Web Deployment Script for GitHub Pages
-# This script builds the Flutter web app and deploys it to gh-pages branch
+# Web Deployment Script for GitHub Pages (v2 - Safe)
+# This version NEVER switches branches, so it won't delete gitignored files
 #
-# Usage: ./deploy_web.sh
+# Usage: ./deploy_web_v2.sh
 
 set -e  # Exit on any error
 
@@ -59,57 +59,61 @@ fi
 
 echo -e "${GREEN}✅ Build successful!${NC}"
 
-# Create a temporary directory for gh-pages content
-TEMP_DIR=$(mktemp -d)
-echo -e "${BLUE}📁 Copying build to temporary directory...${NC}"
+# Create a temporary git directory for gh-pages
+TEMP_GIT_DIR=$(mktemp -d)
+echo -e "${BLUE}📁 Creating temporary git directory...${NC}"
 
-# Copy build files to temp directory
-cp -r build/web/* "$TEMP_DIR/"
+# Initialize a new git repo in temp directory
+cd "$TEMP_GIT_DIR"
+git init
+git remote add origin $(git -C "$OLDPWD" config --get remote.origin.url)
 
-# Add .nojekyll file (tells GitHub Pages not to use Jekyll)
-touch "$TEMP_DIR/.nojekyll"
+# Fetch only gh-pages branch
+echo -e "${BLUE}📥 Fetching gh-pages branch...${NC}"
+git fetch origin gh-pages --depth=1 || echo "No existing gh-pages branch"
 
-echo -e "${BLUE}📋 Build files copied to: $TEMP_DIR${NC}"
+# Create orphan gh-pages branch or checkout existing
+if git ls-remote --heads origin gh-pages | grep -q gh-pages; then
+    git checkout gh-pages
+else
+    git checkout --orphan gh-pages
+fi
 
-# Switch to gh-pages branch
-echo -e "${BLUE}🔀 Switching to gh-pages branch...${NC}"
-git checkout gh-pages
+# Remove all files in temp repo
+rm -rf *
 
-# Remove ALL old files except .git directory
-echo -e "${BLUE}🗑️  Cleaning gh-pages branch...${NC}"
-find . -maxdepth 1 ! -name '.git' ! -name '.' ! -name '..' -exec rm -rf {} +
+# Copy build files from main project
+echo -e "${BLUE}📋 Copying build files...${NC}"
+cp -r "$OLDPWD/build/web/"* .
 
-# Copy new build files from temp to gh-pages
-echo -e "${BLUE}📥 Copying new build files...${NC}"
-cp -r "$TEMP_DIR"/* .
-cp "$TEMP_DIR"/.nojekyll .
+# Add .nojekyll file
+touch .nojekyll
+
+# Check if there are changes to commit
+if git diff --staged --quiet 2>/dev/null && git diff --quiet 2>/dev/null && [ -z "$(git ls-files --others --exclude-standard)" ]; then
+    echo -e "${YELLOW}ℹ️  No changes detected - deployment skipped${NC}"
+    cd "$OLDPWD"
+    rm -rf "$TEMP_GIT_DIR"
+    exit 0
+fi
 
 # Add all files
 git add -A
 
-# Check if there are changes to commit
-if git diff --staged --quiet; then
-    echo -e "${YELLOW}ℹ️  No changes detected - deployment skipped${NC}"
-    git checkout "$CURRENT_BRANCH"
-    rm -rf "$TEMP_DIR"
-    exit 0
-fi
-
 # Commit with timestamp
 COMMIT_MSG="deploy: web app from $CURRENT_BRANCH ($(date '+%Y-%m-%d %H:%M:%S'))"
 echo -e "${BLUE}💾 Committing: $COMMIT_MSG${NC}"
-git commit -m "$COMMIT_MSG"
+git commit -m "$COMMIT_MSG" || echo "No changes to commit"
 
 # Push to remote gh-pages
 echo -e "${BLUE}⬆️  Pushing to GitHub...${NC}"
-git push origin gh-pages
+git push -f origin gh-pages
 
-# Switch back to original branch
-echo -e "${BLUE}🔙 Switching back to $CURRENT_BRANCH...${NC}"
-git checkout "$CURRENT_BRANCH"
+# Go back to original directory
+cd "$OLDPWD"
 
 # Clean up temp directory
-rm -rf "$TEMP_DIR"
+rm -rf "$TEMP_GIT_DIR"
 
 echo ""
 echo -e "${GREEN}╔════════════════════════════════════════════════════════╗${NC}"
