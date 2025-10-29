@@ -101,7 +101,7 @@ class _AppMenuButtonState extends State<AppMenuButton>
 
         switch (value) {
           case 'about':
-            // TODO: Show about dialog or open landing page
+            await _launchUrl(AppStrings.aboutUrl);
             break;
           case 'privacy':
             await _launchUrl(AppStrings.privacyPolicyUrl);

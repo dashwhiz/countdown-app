@@ -1,4 +1,4 @@
-# Countdown App
+# DazeToGo
 
 A beautiful, local-first event countdown app with shareable mini-pages.
 

@@ -1,5 +1,5 @@
 name: countdown_app
-description: "A beautiful countdown event app with shareable mini-pages."
+description: "DazeToGo - The only countdown app with shareable live links."
 publish_to: 'none'
 
 version: 1.0.0+1
