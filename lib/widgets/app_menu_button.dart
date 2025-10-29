@@ -188,9 +188,18 @@ class _AppMenuButtonState extends State<AppMenuButton>
           ),
           child: Row(
             children: [
-              const Icon(Icons.info, size: 20, color: Colors.grey),
+              Icon(
+                Icons.info,
+                size: 20,
+                color: Theme.of(context).iconTheme.color,
+              ),
               const SizedBox(width: AppConstants.paddingMedium),
-              Text(_version, style: const TextStyle(color: Colors.grey)),
+              Text(
+                _version,
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
+              ),
             ],
           ),
         ),
