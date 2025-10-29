@@ -232,6 +232,7 @@ class PublicCountdownScreen extends StatelessWidget {
       init: PublicCountdownController(slug: slug),
       builder: (ctrl) {
         return Scaffold(
+          backgroundColor: AppColors.backgroundDark,
           body: Obx(() {
             if (ctrl.isLoading.value) {
               return _buildLoadingState();
@@ -330,9 +331,7 @@ class PublicCountdownScreen extends StatelessWidget {
               return SingleChildScrollView(
                 physics: const ClampingScrollPhysics(),
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight,
-                  ),
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
                   child: Center(
                     child: Container(
                       constraints: BoxConstraints(
@@ -365,14 +364,17 @@ class PublicCountdownScreen extends StatelessWidget {
                                         : AppConstants.fontSizeLarge,
                                   ),
                                 ),
-                                const SizedBox(width: AppConstants.paddingMedium),
+                                const SizedBox(
+                                  width: AppConstants.paddingMedium,
+                                ),
                                 Flexible(
                                   child: Text(
                                     ctrl.event.value!.title,
-                                    style: Get.textTheme.headlineSmall?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: isMobile ? 20 : null,
-                                    ),
+                                    style: Get.textTheme.headlineSmall
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: isMobile ? 20 : null,
+                                        ),
                                     textAlign: TextAlign.center,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
@@ -387,7 +389,11 @@ class PublicCountdownScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 32),
                             // Reaction counter
-                            Obx(() => _buildReactionCounter(ctrl.reactionCount.value)),
+                            Obx(
+                              () => _buildReactionCounter(
+                                ctrl.reactionCount.value,
+                              ),
+                            ),
                             const SizedBox(height: 16),
                             // Hint text
                             Text(

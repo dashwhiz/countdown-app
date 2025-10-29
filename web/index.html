@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="background-color: #0D1117;">
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -23,6 +23,8 @@
 
   <!-- Theme colors for browser UI -->
   <meta name="theme-color" content="#0D1117">
+  <meta name="theme-color" content="#0D1117" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0D1117" media="(prefers-color-scheme: dark)">
   <meta name="msapplication-navbutton-color" content="#0D1117">
 
   <!-- iOS meta tags & icons -->
@@ -37,6 +39,14 @@
 
   <title>DazeToGo</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0D1117;
+    }
+  </style>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
