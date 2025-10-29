@@ -20,7 +20,7 @@ class SharingRepo {
     try {
       AppLogger.info('[SharingRepo] Creating share for event: ${event.title}');
 
-      // If event already has a slug, return it with existing token
+      // If event already has a slug, return it (updating happens automatically via saveEvent)
       if (event.shareSlug != null && event.shareSlug!.isNotEmpty) {
         AppLogger.debug('[SharingRepo] Event already has slug: ${event.shareSlug}');
         return {
@@ -68,6 +68,54 @@ class SharingRepo {
       } else {
         throw Exception(AppStrings.errorCreateShareLink);
       }
+    }
+  }
+
+  /// Update an existing shared event with new data
+  ///
+  /// Called automatically when editing a shared event
+  Future<void> updateSharedEvent(CountdownEvent event) async {
+    if (event.shareSlug == null || event.shareSlug!.isEmpty) return;
+
+    try {
+      AppLogger.info('[SharingRepo] Updating shared event: ${event.shareSlug}');
+
+      // Find the existing document
+      final result = await _appwrite.databases.listDocuments(
+        databaseId: _appwrite.databaseId,
+        collectionId: _appwrite.sharedEventsCollectionId,
+        queries: [
+          Query.equal('slug', event.shareSlug!),
+          Query.limit(1),
+        ],
+      );
+
+      if (result.documents.isEmpty) {
+        AppLogger.warning('[SharingRepo] Shared event not found: ${event.shareSlug}');
+        return;
+      }
+
+      final doc = result.documents.first;
+
+      // Update the document with new event data
+      await _appwrite.databases.updateDocument(
+        databaseId: _appwrite.databaseId,
+        collectionId: _appwrite.sharedEventsCollectionId,
+        documentId: doc.$id,
+        data: {
+          'title': event.title,
+          'targetDate': event.targetDate.toUtc().toIso8601String(),
+          'timezone': event.timezone,
+          'emoji': event.emoji,
+          'colorValue': event.colorValue,
+          // Keep existing reactionCount and deletionToken
+        },
+      );
+
+      AppLogger.info('[SharingRepo] Successfully updated shared event');
+    } catch (e, stackTrace) {
+      AppLogger.error('[SharingRepo] Failed to update shared event', e, stackTrace);
+      rethrow;
     }
   }
 

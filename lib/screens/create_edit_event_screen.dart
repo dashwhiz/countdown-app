@@ -142,6 +142,10 @@ class CreateEditEventController extends GetxController {
       colorValue: selectedColor.toARGB32(),
       emoji: selectedEmoji,
       isPinned: isPinned,
+      shareSlug: isEditMode ? eventToEdit!.shareSlug : null,
+      vanitySlug: isEditMode ? eventToEdit!.vanitySlug : null,
+      themeId: isEditMode ? eventToEdit!.themeId : null,
+      deletionToken: isEditMode ? eventToEdit!.deletionToken : null,
       createdAt: isEditMode ? eventToEdit!.createdAt : null,
     );
 
