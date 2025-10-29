@@ -9,8 +9,8 @@ A beautiful, local-first event countdown app with shareable mini-pages.
 - 🌙 Beautiful dark mode UI with iOS-style animations
 - 🔗 Shareable public links with live countdown timers
 - ❤️ Interactive reactions on shared pages (with rate limiting)
-- 🎨 Pro themes and icon packs (v1.2)
-- 📱 Home/lock screen widgets (iOS & Android)
+- 📱 Home/lock screen widgets (coming soon)
+- 🔁 Recurring countdowns (coming soon)
 
 ## Tech Stack
 
