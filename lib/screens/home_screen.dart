@@ -123,9 +123,10 @@ class HomeController extends GetxController {
       context: context,
       title: AppStrings.deleteSharedDataTitle,
       message: AppStrings.deleteSharedDataMessage,
-      confirmText: AppStrings.ok,
+      confirmText: AppStrings.delete,
       cancelText: AppStrings.cancel,
-      icon: Icons.warning_amber_rounded,
+      icon: Icons.delete_forever,
+      isDestructive: true,
     );
 
     if (confirmed != true) return;

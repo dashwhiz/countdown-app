@@ -13,6 +13,7 @@ import '../app/app_strings.dart';
 import '../models/countdown_event.dart';
 import '../repositories/events_repo.dart';
 import '../utils/operation_scope.dart';
+import '../widgets/app_confirmation_dialog.dart';
 import '../widgets/color_picker_grid.dart';
 import '../widgets/date_time_picker.dart';
 import '../widgets/emoji_picker_grid.dart';
@@ -178,28 +179,14 @@ class CreateEditEventController extends GetxController {
         ? Icons.warning_amber_rounded
         : Icons.info_outline;
 
-    final result = await showDialog<bool>(
+    return await AppConfirmationDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        icon: Icon(icon, size: AppConstants.iconSizeExtraLarge, color: AppColors.warning),
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text(AppStrings.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.error,
-            ),
-            child: const Text(AppStrings.ok),
-          ),
-        ],
-      ),
+      title: title,
+      message: message,
+      confirmText: AppStrings.ok,
+      cancelText: AppStrings.cancel,
+      icon: icon,
     );
-    return result ?? false;
   }
 }
 

@@ -187,9 +187,9 @@ class AppStrings {
   static const String deleteMySharedData = 'Delete My Shared Data';
 
   // Delete Shared Data
-  static const String deleteSharedDataTitle = 'Delete All Shared Data?';
+  static const String deleteSharedDataTitle = 'Delete Shared Data?';
   static const String deleteSharedDataMessage =
-      'This will permanently delete all your shared countdowns and reactions from our servers. Your local countdowns will remain on your device.\n\nThis action cannot be undone.';
+      'This will permanently delete all shared countdowns from our servers. Local countdowns stay safe.';
   static const String deleteSharedDataSuccess = 'Shared data deleted successfully';
   static const String deleteSharedDataFailed = 'Failed to delete shared data';
   static const String deleteSharedDataPartial =

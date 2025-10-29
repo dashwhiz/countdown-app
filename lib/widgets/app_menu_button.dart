@@ -204,12 +204,13 @@ class _AppMenuButtonState extends State<AppMenuButton>
           ),
           child: Row(
             children: [
-              const Icon(Icons.delete_sweep, size: 20, color: AppColors.error),
-              const SizedBox(width: AppConstants.paddingMedium),
-              const Text(
-                AppStrings.deleteMySharedData,
-                style: TextStyle(color: AppColors.error),
+              Icon(
+                Icons.delete_sweep,
+                size: 20,
+                color: Theme.of(context).iconTheme.color,
               ),
+              const SizedBox(width: AppConstants.paddingMedium),
+              const Text(AppStrings.deleteMySharedData),
             ],
           ),
         ),
