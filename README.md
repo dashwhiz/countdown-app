@@ -75,12 +75,7 @@ The app features a custom purple gradient icon with a calendar design:
 - Android: Standard + adaptive icons (5 densities)
 - Web: Favicon + PWA icons (192px, 512px)
 
-Icons are generated using `flutter_launcher_icons`. See documentation in `.claude/ICON_GENERATION.md` (if exists locally).
-
-## Documentation
-
-- [Technical Specification](.claude/SPEC.md)
-- [Development Roadmap](.claude/TODO.md)
+Icons are generated using `flutter_launcher_icons`.
 
 ## License
 
