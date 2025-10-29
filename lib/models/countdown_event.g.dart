@@ -28,13 +28,14 @@ class CountdownEventAdapter extends TypeAdapter<CountdownEvent> {
       vanitySlug: fields[8] as String?,
       themeId: fields[9] as String?,
       createdAt: fields[10] as DateTime?,
+      deletionToken: fields[11] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CountdownEvent obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -56,7 +57,9 @@ class CountdownEventAdapter extends TypeAdapter<CountdownEvent> {
       ..writeByte(9)
       ..write(obj.themeId)
       ..writeByte(10)
-      ..write(obj.createdAt);
+      ..write(obj.createdAt)
+      ..writeByte(11)
+      ..write(obj.deletionToken);
   }
 
   @override

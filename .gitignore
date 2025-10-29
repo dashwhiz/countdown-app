@@ -14,6 +14,8 @@ migrate_working_dir/
 
 # Claude Code
 .claude/
+.clauderc.md
+claude.md
 
 # IntelliJ related
 *.iml

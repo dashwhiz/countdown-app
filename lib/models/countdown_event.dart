@@ -38,6 +38,9 @@ class CountdownEvent {
   @HiveField(10)
   final DateTime createdAt;
 
+  @HiveField(11)
+  final String? deletionToken;
+
   CountdownEvent({
     required this.id,
     required this.title,
@@ -50,6 +53,7 @@ class CountdownEvent {
     this.vanitySlug,
     this.themeId,
     DateTime? createdAt,
+    this.deletionToken,
   }) : createdAt = createdAt ?? DateTime.now();
 
   Duration get timeRemaining => targetDate.difference(DateTime.now());
@@ -68,6 +72,7 @@ class CountdownEvent {
     String? shareSlug,
     String? vanitySlug,
     String? themeId,
+    String? deletionToken,
   }) {
     return CountdownEvent(
       id: id,
@@ -80,6 +85,7 @@ class CountdownEvent {
       shareSlug: shareSlug ?? this.shareSlug,
       vanitySlug: vanitySlug ?? this.vanitySlug,
       themeId: themeId ?? this.themeId,
+      deletionToken: deletionToken ?? this.deletionToken,
       createdAt: createdAt,
     );
   }
@@ -95,6 +101,7 @@ class CountdownEvent {
         'shareSlug': shareSlug,
         'vanitySlug': vanitySlug,
         'themeId': themeId,
+        'deletionToken': deletionToken,
         'createdAt': createdAt.toIso8601String(),
       };
 
@@ -110,6 +117,7 @@ class CountdownEvent {
         shareSlug: json['shareSlug'] as String?,
         vanitySlug: json['vanitySlug'] as String?,
         themeId: json['themeId'] as String?,
+        deletionToken: json['deletionToken'] as String?,
         createdAt: DateTime.parse(json['createdAt'] as String),
       );
 }

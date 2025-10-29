@@ -20,22 +20,22 @@ class AppColors {
   static const Color info = Color(0xFF2196F3);
 
   static const Color surface = Color(0xFFFEF7FF);
-  static const Color surfaceDark = Color(0xFF1C1B1F);
+  static const Color surfaceDark = Color(0xFF161B22);
 
   static const Color background = Color(0xFFFFFBFF);
-  static const Color backgroundDark = Color(0xFF1C1B1F);
+  static const Color backgroundDark = Color(0xFF0D1117);
 
   static const Color cardLight = Color(0xFFFFFFFF);
-  static const Color cardDark = Color(0xFF2B2930);
+  static const Color cardDark = Color(0xFF21262D);
 
   static const Color textPrimary = Color(0xFF1C1B1F);
-  static const Color textPrimaryDark = Color(0xFFE6E1E5);
+  static const Color textPrimaryDark = Color(0xFFC9D1D9);
 
   static const Color textSecondary = Color(0xFF49454F);
-  static const Color textSecondaryDark = Color(0xFFCAC4D0);
+  static const Color textSecondaryDark = Color(0xFF8B949E);
 
   static const Color divider = Color(0xFFE7E0EC);
-  static const Color dividerDark = Color(0xFF49454F);
+  static const Color dividerDark = Color(0xFF30363D);
 
   static const Color shadow = Color(0x1F000000);
   static const Color shadowDark = Color(0x3F000000);
@@ -56,6 +56,12 @@ class AppColors {
     Color(0xFFFFB74D), // Orange
     Color(0xFFFFD54F), // Amber
     Color(0xFFFFE082), // Yellow
+    Color(0xFFFF7675), // Coral
+    Color(0xFFEC407A), // Rose
+    Color(0xFFCDDC39), // Lime
+    Color(0xFF90CAF9), // Sky Blue
+    Color(0xFFFFAB91), // Peach
+    Color(0xFFCE93D8), // Lavender
   ];
 
   static const List<Color> proGradientColors = [

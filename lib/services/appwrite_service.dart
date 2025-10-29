@@ -1,101 +1,109 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:get/get.dart';
-import '../models/countdown_event.dart';
+import '../app/app_logger.dart';
+import '../app/app_strings.dart';
 
+/// Appwrite service for managing shareable countdown pages and reactions
+///
+/// This service handles all communication with Appwrite backend for:
+/// - Creating shareable countdown documents
+/// - Fetching shared countdowns for web pages
+/// - Managing reactions (double-tap hearts)
 class AppwriteService extends GetxService {
-  late Client _client;
-  late Databases _databases;
+  // Appwrite configuration
+  static const String _endpoint = 'https://fra.cloud.appwrite.io/v1';
+  static const String _projectId = '690125b60025bbef5adc';
+  static const String _databaseId = '690125ed003455928b9e';
+  static const String _sharedEventsCollectionId = 'shared_events';
+  static const String _reactionsCollectionId = 'reactions';
 
-  String get _endpoint => 'https://cloud.appwrite.io/v1';
-  String get _projectId => 'YOUR_PROJECT_ID';
-  String get _databaseId => 'YOUR_DATABASE_ID';
-  String get _sharedEventsCollection => 'shared_events';
-  String get _reactionsCollection => 'reactions';
+  // Appwrite client and services
+  late final Client _client;
+  late final Databases _databases;
 
+  // Connection state
+  final _isInitialized = false.obs;
+  bool get isInitialized => _isInitialized.value;
+
+  /// Initialize Appwrite client
   Future<AppwriteService> init() async {
-    _client = Client()
-      ..setEndpoint(_endpoint)
-      ..setProject(_projectId);
-
-    _databases = Databases(_client);
-
-    return this;
-  }
-
-  Future<String> createSharedEvent(CountdownEvent event, String slug) async {
-    await _databases.createDocument(
-      databaseId: _databaseId,
-      collectionId: _sharedEventsCollection,
-      documentId: slug,
-      data: {
-        'slug': slug,
-        'title': event.title,
-        'targetDate': event.targetDate.toIso8601String(),
-        'timezone': event.timezone,
-        'emoji': event.emoji,
-        'colorValue': event.colorValue,
-        'themeId': event.themeId,
-        'vanitySlug': event.vanitySlug,
-        'isPro': false,
-        'reactionCount': 0,
-      },
-    );
-
-    return slug;
-  }
-
-  Future<CountdownEvent?> getSharedEvent(String slug) async {
     try {
-      final doc = await _databases.getDocument(
-        databaseId: _databaseId,
-        collectionId: _sharedEventsCollection,
-        documentId: slug,
-      );
+      AppLogger.info('[AppwriteService] Initializing Appwrite client...');
 
-      return CountdownEvent.fromJson({
-        'id': doc.data['slug'],
-        'title': doc.data['title'],
-        'targetDate': doc.data['targetDate'],
-        'timezone': doc.data['timezone'],
-        'colorValue': doc.data['colorValue'],
-        'emoji': doc.data['emoji'],
-        'isPinned': false,
-        'shareSlug': doc.data['slug'],
-        'vanitySlug': doc.data['vanitySlug'],
-        'themeId': doc.data['themeId'],
-        'createdAt': DateTime.now().toIso8601String(),
-      });
-    } catch (e) {
-      return null;
+      _client = Client()
+          .setEndpoint(_endpoint)
+          .setProject(_projectId)
+          .setSelfSigned(status: false); // Production = false
+
+      _databases = Databases(_client);
+
+      _isInitialized.value = true;
+      AppLogger.info('[AppwriteService] Appwrite initialized successfully');
+      return this;
+    } catch (e, stackTrace) {
+      AppLogger.error('[AppwriteService] Failed to initialize', e, stackTrace);
+      _isInitialized.value = false;
+      rethrow;
     }
   }
 
-  Future<int> getReactionCount(String eventSlug) async {
-    try {
-      final result = await _databases.listDocuments(
-        databaseId: _databaseId,
-        collectionId: _reactionsCollection,
-        queries: [
-          Query.equal('eventSlug', eventSlug),
-        ],
-      );
-      return result.total;
-    } catch (e) {
-      return 0;
+  /// Get database instance (for repositories)
+  Databases get databases {
+    if (!_isInitialized.value) {
+      throw Exception('AppwriteService not initialized. Call init() first.');
     }
+    return _databases;
   }
 
-  Future<void> addReaction(String eventSlug, String ipHash) async {
-    await _databases.createDocument(
-      databaseId: _databaseId,
-      collectionId: _reactionsCollection,
-      documentId: 'unique()',
-      data: {
-        'eventSlug': eventSlug,
-        'ipHash': ipHash,
-        'reactionType': 'heart',
-        'timestamp': DateTime.now().toIso8601String(),
-      },
-    );
+  // Collection IDs (getters for repositories)
+  String get databaseId => _databaseId;
+  String get sharedEventsCollectionId => _sharedEventsCollectionId;
+  String get reactionsCollectionId => _reactionsCollectionId;
+
+  /// Check if error is a network issue
+  static bool isNetworkError(dynamic error) {
+    if (error is AppwriteException) {
+      // Connection errors typically have these codes
+      return error.code == null ||
+          error.code == 0 ||
+          error.message?.contains('network') == true ||
+          error.message?.contains('connection') == true ||
+          error.message?.contains('timeout') == true;
+    }
+    return false;
+  }
+
+  /// Check if error is a rate limit error
+  static bool isRateLimitError(dynamic error) {
+    if (error is AppwriteException) {
+      return error.code == 429 ||
+          error.message?.contains('rate limit') == true ||
+          error.message?.contains('too many requests') == true;
+    }
+    return false;
+  }
+
+  /// Check if error is a not found error
+  static bool isNotFoundError(dynamic error) {
+    if (error is AppwriteException) {
+      return error.code == 404 ||
+          error.message?.contains('not found') == true ||
+          error.message?.contains('document not found') == true;
+    }
+    return false;
+  }
+
+  /// Get user-friendly error message
+  static String getFriendlyErrorMessage(dynamic error) {
+    if (isNetworkError(error)) {
+      return AppStrings.errorNetwork;
+    } else if (isRateLimitError(error)) {
+      return AppStrings.errorRateLimit;
+    } else if (isNotFoundError(error)) {
+      return AppStrings.errorNotFound;
+    } else if (error is AppwriteException) {
+      return error.message ?? AppStrings.errorGeneric;
+    }
+    return AppStrings.errorUnexpected;
   }
 }
