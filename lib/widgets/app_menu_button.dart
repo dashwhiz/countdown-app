@@ -6,7 +6,9 @@ import '../app/app_constants.dart';
 import '../app/app_strings.dart';
 
 class AppMenuButton extends StatefulWidget {
-  const AppMenuButton({super.key});
+  final Future<void> Function()? onDeleteSharedData;
+
+  const AppMenuButton({super.key, this.onDeleteSharedData});
 
   @override
   State<AppMenuButton> createState() => _AppMenuButtonState();
@@ -112,6 +114,11 @@ class _AppMenuButtonState extends State<AppMenuButton>
           case 'support':
             await _launchUrl(AppStrings.supportUrl);
             break;
+          case 'delete_shared_data':
+            if (widget.onDeleteSharedData != null) {
+              await widget.onDeleteSharedData!();
+            }
+            break;
         }
       },
       itemBuilder: (context) => [
@@ -177,6 +184,32 @@ class _AppMenuButtonState extends State<AppMenuButton>
               const Icon(Icons.help_outline, size: 20),
               const SizedBox(width: AppConstants.paddingMedium),
               const Text(AppStrings.helpAndSupport),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          enabled: false,
+          height: 16,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppConstants.paddingLarge,
+            vertical: 0,
+          ),
+          child: Divider(height: 1, thickness: 1, color: AppColors.dividerDark),
+        ),
+        PopupMenuItem(
+          value: 'delete_shared_data',
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppConstants.paddingLarge,
+            vertical: AppConstants.paddingSmall,
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.delete_sweep, size: 20, color: AppColors.error),
+              const SizedBox(width: AppConstants.paddingMedium),
+              const Text(
+                AppStrings.deleteMySharedData,
+                style: TextStyle(color: AppColors.error),
+              ),
             ],
           ),
         ),

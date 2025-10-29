@@ -15,20 +15,24 @@ class SharingRepo {
 
   /// Create or get existing share slug for an event
   ///
-  /// Returns the slug that can be used in URLs like: https://yourapp.com/?id=slug
-  Future<String?> createOrGetShareSlug(CountdownEvent event) async {
+  /// Returns a map with 'slug' and 'deletionToken' that can be used to share and delete
+  Future<Map<String, String>?> createOrGetShareSlug(CountdownEvent event) async {
     try {
       AppLogger.info('[SharingRepo] Creating share for event: ${event.title}');
 
-      // If event already has a slug, return it
+      // If event already has a slug, return it with existing token
       if (event.shareSlug != null && event.shareSlug!.isNotEmpty) {
         AppLogger.debug('[SharingRepo] Event already has slug: ${event.shareSlug}');
-        return event.shareSlug;
+        return {
+          'slug': event.shareSlug!,
+          'deletionToken': event.deletionToken ?? '', // Should always exist
+        };
       }
 
-      // Generate new slug
+      // Generate new slug and deletion token
       final slug = _generateSlug();
-      AppLogger.debug('[SharingRepo] Generated new slug: $slug');
+      final deletionToken = const Uuid().v4(); // Full UUID with dashes (36 chars)
+      AppLogger.debug('[SharingRepo] Generated new slug: $slug, token: $deletionToken');
 
       // Create document in Appwrite
       final document = await _appwrite.databases.createDocument(
@@ -37,6 +41,7 @@ class SharingRepo {
         documentId: ID.unique(),
         data: {
           'slug': slug,
+          'deletionToken': deletionToken,
           'title': event.title,
           'targetDate': event.targetDate.toUtc().toIso8601String(),
           'eventCreatedAt': event.createdAt.toUtc().toIso8601String(),
@@ -48,7 +53,10 @@ class SharingRepo {
       );
 
       AppLogger.info('[SharingRepo] Share created successfully: $slug');
-      return document.data['slug'] as String;
+      return {
+        'slug': document.data['slug'] as String,
+        'deletionToken': document.data['deletionToken'] as String,
+      };
     } catch (e, stackTrace) {
       AppLogger.error('[SharingRepo] Failed to create share', e, stackTrace);
 
@@ -175,6 +183,104 @@ class SharingRepo {
     } catch (e) {
       AppLogger.error('[SharingRepo] Failed to get reaction count', e);
       return 0;
+    }
+  }
+
+  /// Delete a shared event by slug and deletion token
+  ///
+  /// Returns true if successful, false if not found or token invalid
+  Future<bool> deleteSharedEvent(String slug, String deletionToken) async {
+    try {
+      AppLogger.info('[SharingRepo] Deleting shared event: $slug');
+
+      // Find the document by slug
+      final result = await _appwrite.databases.listDocuments(
+        databaseId: _appwrite.databaseId,
+        collectionId: _appwrite.sharedEventsCollectionId,
+        queries: [
+          Query.equal('slug', slug),
+          Query.limit(1),
+        ],
+      );
+
+      if (result.documents.isEmpty) {
+        AppLogger.warning('[SharingRepo] Shared event not found: $slug');
+        return false;
+      }
+
+      final doc = result.documents.first;
+
+      // Verify deletion token
+      final storedToken = doc.data['deletionToken'] as String?;
+      if (storedToken != deletionToken) {
+        AppLogger.warning('[SharingRepo] Invalid deletion token for: $slug');
+        return false;
+      }
+
+      // Delete the document
+      await _appwrite.databases.deleteDocument(
+        databaseId: _appwrite.databaseId,
+        collectionId: _appwrite.sharedEventsCollectionId,
+        documentId: doc.$id,
+      );
+
+      // Also delete all reactions for this event
+      await _deleteReactionsForEvent(slug);
+
+      AppLogger.info('[SharingRepo] Successfully deleted shared event: $slug');
+      return true;
+    } catch (e, stackTrace) {
+      AppLogger.error('[SharingRepo] Failed to delete shared event', e, stackTrace);
+      return false;
+    }
+  }
+
+  /// Delete all shared events for given list of events
+  ///
+  /// Returns count of successfully deleted events
+  Future<int> deleteAllSharedEvents(List<CountdownEvent> events) async {
+    int deletedCount = 0;
+
+    for (final event in events) {
+      if (event.shareSlug != null && event.deletionToken != null) {
+        final success = await deleteSharedEvent(
+          event.shareSlug!,
+          event.deletionToken!,
+        );
+        if (success) deletedCount++;
+      }
+    }
+
+    AppLogger.info('[SharingRepo] Deleted $deletedCount shared events');
+    return deletedCount;
+  }
+
+  /// Delete all reactions for an event
+  Future<void> _deleteReactionsForEvent(String eventSlug) async {
+    try {
+      // Query all reactions for this event
+      final result = await _appwrite.databases.listDocuments(
+        databaseId: _appwrite.databaseId,
+        collectionId: _appwrite.reactionsCollectionId,
+        queries: [
+          Query.equal('eventSlug', eventSlug),
+          Query.limit(100), // Batch delete
+        ],
+      );
+
+      // Delete each reaction
+      for (final doc in result.documents) {
+        await _appwrite.databases.deleteDocument(
+          databaseId: _appwrite.databaseId,
+          collectionId: _appwrite.reactionsCollectionId,
+          documentId: doc.$id,
+        );
+      }
+
+      AppLogger.debug('[SharingRepo] Deleted ${result.documents.length} reactions for: $eventSlug');
+    } catch (e) {
+      AppLogger.error('[SharingRepo] Failed to delete reactions', e);
+      // Don't throw - reactions deletion is cleanup, not critical
     }
   }
 

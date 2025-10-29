@@ -85,16 +85,22 @@ class DetailController extends GetxController {
           ? box.localToGlobal(Offset.zero) & box.size
           : null;
 
-      // Create or get existing share slug
-      final slug = await _sharingRepo.createOrGetShareSlug(event);
+      // Create or get existing share slug and deletion token
+      final shareData = await _sharingRepo.createOrGetShareSlug(event);
 
-      if (slug == null) {
+      if (shareData == null) {
         throw Exception(AppStrings.createShareFailed);
       }
 
-      // If this is a new share, update the local event with the slug
+      final slug = shareData['slug']!;
+      final deletionToken = shareData['deletionToken']!;
+
+      // If this is a new share, update the local event with the slug and token
       if (event.shareSlug != slug) {
-        final updatedEvent = event.copyWith(shareSlug: slug);
+        final updatedEvent = event.copyWith(
+          shareSlug: slug,
+          deletionToken: deletionToken,
+        );
         await _repo.saveEvent(updatedEvent);
         event = updatedEvent;
         wasEdited = true;
@@ -105,7 +111,6 @@ class DetailController extends GetxController {
       }
 
       // Build the shareable URL
-      // TODO: Replace with your actual domain when web app is deployed
       final shareUrl = '${AppConstants.shareUrlBase}/?id=$slug';
 
       // Share using native share dialog with promotional text

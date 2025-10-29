@@ -8,6 +8,7 @@ import '../app/app_progress_listeners.dart';
 import '../app/app_strings.dart';
 import '../models/countdown_event.dart';
 import '../repositories/events_repo.dart';
+import '../repositories/sharing_repo.dart';
 import '../utils/operation_scope.dart';
 import '../widgets/all_events_section.dart';
 import '../widgets/app_confirmation_dialog.dart';
@@ -19,6 +20,7 @@ import 'detail_screen.dart';
 
 class HomeController extends GetxController {
   final EventsRepo _repo = EventsRepo();
+  final SharingRepo _sharingRepo = SharingRepo();
 
   late ProgressListener _progressListener;
   late ErrorListener _errorListener;
@@ -98,6 +100,84 @@ class HomeController extends GetxController {
       AppLogger.error('Failed to delete event', e, stackTrace);
     }
   }
+
+  Future<void> handleDeleteSharedData(BuildContext context) async {
+    // Count shared events
+    final sharedEvents = allEvents.where((e) => e.shareSlug != null).toList();
+
+    if (sharedEvents.isEmpty) {
+      Get.snackbar(
+        AppStrings.noSharedDataTitle,
+        AppStrings.noSharedData,
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: AppColors.info,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(AppConstants.paddingMedium),
+        borderRadius: AppConstants.borderRadiusLarge,
+      );
+      return;
+    }
+
+    // Show confirmation dialog
+    final confirmed = await AppConfirmationDialog.show(
+      context: context,
+      title: AppStrings.deleteSharedDataTitle,
+      message: AppStrings.deleteSharedDataMessage,
+      confirmText: AppStrings.ok,
+      cancelText: AppStrings.cancel,
+      icon: Icons.warning_amber_rounded,
+    );
+
+    if (confirmed != true) return;
+
+    // Delete shared data
+    final result = await scope(
+      scope: () async => await _sharingRepo.deleteAllSharedEvents(allEvents),
+      progressListener: _progressListener,
+      errorListener: _errorListener,
+    );
+
+    if (result.success && result.result != null) {
+      final deletedCount = result.result!;
+
+      // Clear shareSlug and deletionToken from local events
+      for (final event in sharedEvents) {
+        final updatedEvent = CountdownEvent(
+          id: event.id,
+          title: event.title,
+          targetDate: event.targetDate,
+          timezone: event.timezone,
+          colorValue: event.colorValue,
+          emoji: event.emoji,
+          isPinned: event.isPinned,
+          shareSlug: null, // Clear share slug
+          vanitySlug: event.vanitySlug,
+          themeId: event.themeId,
+          deletionToken: null, // Clear deletion token
+          createdAt: event.createdAt,
+        );
+        await _repo.saveEvent(updatedEvent);
+      }
+
+      // Reload events
+      await loadEvents();
+
+      // Show success message
+      final message = deletedCount == sharedEvents.length
+          ? AppStrings.deleteSharedDataSuccess
+          : AppStrings.deleteSharedDataPartial;
+
+      Get.snackbar(
+        AppStrings.successTitle,
+        '$message ($deletedCount/${sharedEvents.length})',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: AppColors.success,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(AppConstants.paddingMedium),
+        borderRadius: AppConstants.borderRadiusLarge,
+      );
+    }
+  }
 }
 
 class HomeScreen extends StatelessWidget {
@@ -140,7 +220,9 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               // Menu button
-              const AppMenuButton(),
+              AppMenuButton(
+                onDeleteSharedData: () => ctrl.handleDeleteSharedData(context),
+              ),
             ],
           ),
           body: AppFutureBuilder<void>(
