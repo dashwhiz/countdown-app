@@ -48,7 +48,11 @@ class _AppMenuButtonState extends State<AppMenuButton>
     try {
       final uri = Uri.parse(urlString);
       if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        // Open web links in app, email links externally
+        final mode = uri.scheme == 'mailto'
+            ? LaunchMode.externalApplication
+            : LaunchMode.inAppWebView;
+        await launchUrl(uri, mode: mode);
       }
     } catch (e) {
       // Failed to launch URL
