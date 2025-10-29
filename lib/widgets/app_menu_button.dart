@@ -129,16 +129,19 @@ class _AppMenuButtonState extends State<AppMenuButton>
           ),
         ),
         PopupMenuItem(
-          value: 'restore',
+          enabled: false,
           padding: const EdgeInsets.symmetric(
             horizontal: AppConstants.paddingLarge,
             vertical: AppConstants.paddingSmall,
           ),
           child: Row(
             children: [
-              const Icon(Icons.restore, size: 20),
+              const Icon(Icons.info, size: 20, color: Colors.grey),
               const SizedBox(width: AppConstants.paddingMedium),
-              const Text(AppStrings.restorePurchases),
+              const Text(
+                'v1.0.0',
+                style: TextStyle(color: Colors.grey),
+              ),
             ],
           ),
         ),
