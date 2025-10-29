@@ -47,6 +47,7 @@ class AppConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: const Color(0xFF161B22), // Closer to app background
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
       ),
@@ -57,8 +58,8 @@ class AppConfirmationDialog extends StatelessWidget {
           children: [
             // Icon
             Container(
-              width: 64,
-              height: 64,
+              width: 72,
+              height: 72,
               decoration: BoxDecoration(
                 color: isDestructive
                     ? AppColors.error.withValues(alpha: 0.1)
@@ -67,18 +68,18 @@ class AppConfirmationDialog extends StatelessWidget {
               ),
               child: Icon(
                 icon,
-                size: 32,
+                size: 36,
                 color: isDestructive ? AppColors.error : AppColors.primary,
               ),
             ),
-            const SizedBox(height: AppConstants.paddingMedium),
+            const SizedBox(height: AppConstants.paddingLarge),
 
             // Title
             Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppConstants.paddingSmall),
@@ -95,62 +96,63 @@ class AppConfirmationDialog extends StatelessWidget {
             cancelText.isEmpty
                 ? SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
+                    child: TextButton(
                       onPressed: () => Navigator.pop(context, true),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isDestructive
+                      style: TextButton.styleFrom(
+                        foregroundColor: isDestructive
                             ? AppColors.error
                             : AppColors.primary,
-                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           vertical: AppConstants.paddingMedium,
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            AppConstants.borderRadiusSmall,
-                          ),
+                      ),
+                      child: Text(
+                        confirmText,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
                         ),
                       ),
-                      child: Text(confirmText),
                     ),
                   )
                 : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppConstants.paddingMedium,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppConstants.borderRadiusSmall,
-                              ),
-                            ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.textSecondaryDark,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppConstants.paddingLarge,
+                            vertical: AppConstants.paddingMedium,
                           ),
-                          child: Text(cancelText),
+                        ),
+                        child: Text(
+                          cancelText,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppConstants.paddingSmall),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: isDestructive
-                                ? AppColors.error
-                                : AppColors.primary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppConstants.paddingMedium,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppConstants.borderRadiusSmall,
-                              ),
-                            ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: TextButton.styleFrom(
+                          foregroundColor: isDestructive
+                              ? AppColors.error
+                              : AppColors.primary,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppConstants.paddingLarge,
+                            vertical: AppConstants.paddingMedium,
                           ),
-                          child: Text(confirmText),
+                        ),
+                        child: Text(
+                          confirmText,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ],

@@ -80,24 +80,26 @@ class HomeController extends GetxController {
   }
 
   Future<void> togglePin(String id) async {
-    try {
-      final success = await _repo.togglePin(id);
-      if (success) {
-        await loadEvents();
-      }
-    } catch (e, stackTrace) {
-      AppLogger.error('Failed to toggle pin', e, stackTrace);
+    final result = await scope(
+      scope: () async => await _repo.togglePin(id),
+      progressListener: _progressListener,
+      errorListener: _errorListener,
+    );
+
+    if (result.success && result.result == true) {
+      await loadEvents();
     }
   }
 
   Future<void> deleteEvent(String id) async {
-    try {
-      final success = await _repo.deleteEvent(id);
-      if (success) {
-        await loadEvents();
-      }
-    } catch (e, stackTrace) {
-      AppLogger.error('Failed to delete event', e, stackTrace);
+    final result = await scope(
+      scope: () async => await _repo.deleteEvent(id),
+      progressListener: _progressListener,
+      errorListener: _errorListener,
+    );
+
+    if (result.success && result.result == true) {
+      await loadEvents();
     }
   }
 
@@ -142,6 +144,7 @@ class HomeController extends GetxController {
       final deletedCount = result.result!;
 
       // Clear shareSlug and deletionToken from local events
+      int localUpdateFailures = 0;
       for (final event in sharedEvents) {
         final updatedEvent = CountdownEvent(
           id: event.id,
@@ -157,22 +160,43 @@ class HomeController extends GetxController {
           deletionToken: null, // Clear deletion token
           createdAt: event.createdAt,
         );
-        await _repo.saveEvent(updatedEvent);
+        final saved = await _repo.saveEvent(updatedEvent);
+        if (!saved) {
+          localUpdateFailures++;
+          AppLogger.error('[HomeController] Failed to clear share status for event: ${event.id}');
+        }
       }
 
       // Reload events
       await loadEvents();
 
       // Show success message
-      final message = deletedCount == sharedEvents.length
-          ? AppStrings.deleteSharedDataSuccess
-          : AppStrings.deleteSharedDataPartial;
+      String message;
+      Color bgColor;
+
+      if (deletedCount == 0) {
+        // Nothing was deleted from server
+        message = AppStrings.deleteSharedDataFailed;
+        bgColor = AppColors.error;
+      } else if (deletedCount == sharedEvents.length && localUpdateFailures == 0) {
+        // Complete success
+        message = AppStrings.deleteSharedDataSuccess;
+        bgColor = AppColors.success;
+      } else {
+        // Partial success
+        message = AppStrings.deleteSharedDataPartial;
+        bgColor = AppColors.warning;
+      }
+
+      final details = localUpdateFailures > 0
+          ? '(Deleted: $deletedCount/${sharedEvents.length}, Local failures: $localUpdateFailures)'
+          : '($deletedCount/${sharedEvents.length})';
 
       Get.snackbar(
-        AppStrings.successTitle,
-        '$message ($deletedCount/${sharedEvents.length})',
+        deletedCount == 0 ? AppStrings.errorTitle : AppStrings.successTitle,
+        '$message $details',
         snackPosition: SnackPosition.TOP,
-        backgroundColor: AppColors.success,
+        backgroundColor: bgColor,
         colorText: Colors.white,
         margin: const EdgeInsets.all(AppConstants.paddingMedium),
         borderRadius: AppConstants.borderRadiusLarge,

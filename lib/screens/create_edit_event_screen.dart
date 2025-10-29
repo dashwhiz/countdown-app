@@ -146,7 +146,7 @@ class CreateEditEventController extends GetxController {
       vanitySlug: isEditMode ? eventToEdit!.vanitySlug : null,
       themeId: isEditMode ? eventToEdit!.themeId : null,
       deletionToken: isEditMode ? eventToEdit!.deletionToken : null,
-      createdAt: isEditMode ? eventToEdit!.createdAt : null,
+      createdAt: isEditMode ? eventToEdit!.createdAt : DateTime.now(),
     );
 
     final result = await scope(
@@ -187,7 +187,7 @@ class CreateEditEventController extends GetxController {
       context: context,
       title: title,
       message: message,
-      confirmText: AppStrings.ok,
+      confirmText: AppStrings.yes,
       cancelText: AppStrings.cancel,
       icon: icon,
     );

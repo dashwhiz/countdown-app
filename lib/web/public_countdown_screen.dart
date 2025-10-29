@@ -57,8 +57,11 @@ class WebStorageHelper {
       );
       return false;
     } catch (e) {
-      AppLogger.error('[WebStorage] Failed to parse last reaction time', e);
-      return true; // Allow reaction if we can't parse the timestamp
+      AppLogger.error('[WebStorage] Failed to parse last reaction time (possible tampering)', e);
+      // Clear invalid data and block reaction for security
+      final storage = web.window.localStorage;
+      storage.removeItem('$_reactionPrefix$eventSlug');
+      return false; // Block reaction if timestamp is corrupted/tampered
     }
   }
 

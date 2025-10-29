@@ -32,20 +32,43 @@ class EventsRepo {
     try {
       AppLogger.info('Saving event: ${event.title}');
 
-      // Save to local storage first
-      await _storage.saveEvent(event);
-
-      // If event is shared, update the Appwrite document automatically
+      // If event is shared, update Appwrite first to ensure consistency
       if (event.shareSlug != null && event.shareSlug!.isNotEmpty) {
-        AppLogger.info('Event is shared, updating server data');
+        AppLogger.info('Event is shared, updating server data first');
         try {
           await _sharingRepo.updateSharedEvent(event);
+          AppLogger.info('Server update successful, saving locally');
         } catch (e) {
-          AppLogger.error('Failed to update shared event on server', e);
-          // Don't fail the save if server update fails - local is more important
+          AppLogger.error('Failed to update shared event on server: ${event.shareSlug}, title: "${event.title}"', e);
+
+          // If server update fails, clear share status to prevent broken links
+          // User can reshare later when connection is restored
+          final unsharingEvent = CountdownEvent(
+            id: event.id,
+            title: event.title,
+            targetDate: event.targetDate,
+            timezone: event.timezone,
+            colorValue: event.colorValue,
+            emoji: event.emoji,
+            isPinned: event.isPinned,
+            shareSlug: null, // Clear share slug
+            vanitySlug: event.vanitySlug,
+            themeId: event.themeId,
+            deletionToken: null, // Clear deletion token
+            createdAt: event.createdAt,
+          );
+
+          // Save unshared version locally
+          await _storage.saveEvent(unsharingEvent);
+          AppLogger.warning('Cleared share status due to server sync failure');
+
+          // Return false to indicate sync failure (triggers error listener)
+          return false;
         }
       }
 
+      // Save to local storage
+      await _storage.saveEvent(event);
       return true;
     } catch (e, stackTrace) {
       AppLogger.error('Failed to save event', e, stackTrace);
@@ -62,18 +85,44 @@ class EventsRepo {
 
       // If event is shared, delete from server first
       if (event != null && event.shareSlug != null && event.deletionToken != null) {
-        AppLogger.info('Event is shared, deleting from server first');
-        await _sharingRepo.deleteSharedEvent(
+        AppLogger.info('Event is shared (slug: ${event.shareSlug}), deleting from server first');
+        final serverDeleted = await _sharingRepo.deleteSharedEvent(
           event.shareSlug!,
           event.deletionToken!,
         );
+
+        if (!serverDeleted) {
+          // Server delete failed - clear share status but keep event locally
+          AppLogger.error('Failed to delete from server, clearing share status: ${event.shareSlug}');
+
+          // Clear shareSlug and deletionToken so event becomes local-only
+          final unsharingEvent = CountdownEvent(
+            id: event.id,
+            title: event.title,
+            targetDate: event.targetDate,
+            timezone: event.timezone,
+            colorValue: event.colorValue,
+            emoji: event.emoji,
+            isPinned: event.isPinned,
+            shareSlug: null, // Clear share slug
+            vanitySlug: event.vanitySlug,
+            themeId: event.themeId,
+            deletionToken: null, // Clear deletion token
+            createdAt: event.createdAt,
+          );
+
+          await _storage.saveEvent(unsharingEvent);
+          return false; // Indicate failure (server data may remain)
+        }
+
+        AppLogger.info('Server delete successful');
       }
 
       // Delete from local storage
       await _storage.deleteEvent(id);
       return true;
     } catch (e, stackTrace) {
-      AppLogger.error('Failed to delete event', e, stackTrace);
+      AppLogger.error('Failed to delete event: $id', e, stackTrace);
       return false;
     }
   }

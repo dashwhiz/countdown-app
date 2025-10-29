@@ -4,11 +4,14 @@ import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import '../app/app_colors.dart';
 import '../app/app_constants.dart';
+import '../app/app_error_listeners.dart';
 import '../app/app_logger.dart';
+import '../app/app_progress_listeners.dart';
 import '../app/app_strings.dart';
 import '../models/countdown_event.dart';
 import '../repositories/events_repo.dart';
 import '../repositories/sharing_repo.dart';
+import '../utils/operation_scope.dart';
 import '../widgets/countdown_display.dart';
 import 'create_edit_event_screen.dart';
 
@@ -17,6 +20,9 @@ class DetailController extends GetxController {
   final EventsRepo _repo = EventsRepo();
   final SharingRepo _sharingRepo = SharingRepo();
   bool wasEdited = false;
+
+  late ProgressListener _progressListener;
+  late ErrorListener _errorListener;
 
   // Reaction count (only if event is shared)
   final reactionCount = Rxn<int>();
@@ -27,6 +33,14 @@ class DetailController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    final context = Get.context;
+    if (context != null) {
+      _progressListener = DefaultProgressListener(context);
+      _errorListener = DialogErrorListener(context);
+    } else {
+      AppLogger.error('Context is null during DetailController initialization');
+    }
+
     // Load reaction count if event is shared
     if (event.isShared) {
       _loadReactionCount();
@@ -76,66 +90,73 @@ class DetailController extends GetxController {
   }
 
   Future<void> handleShare(BuildContext context) async {
-    try {
-      AppLogger.info('[DetailController] Starting share process...');
+    // Get the share button's position BEFORE any async operations
+    final box = context.findRenderObject() as RenderBox?;
+    final sharePositionOrigin = box != null
+        ? box.localToGlobal(Offset.zero) & box.size
+        : null;
 
-      // Get the share button's position BEFORE any async operations
-      final box = context.findRenderObject() as RenderBox?;
-      final sharePositionOrigin = box != null
-          ? box.localToGlobal(Offset.zero) & box.size
-          : null;
+    final result = await scope(
+      scope: () async {
+        AppLogger.info('[DetailController] Starting share process...');
 
-      // Create or get existing share slug and deletion token
-      final shareData = await _sharingRepo.createOrGetShareSlug(event);
+        // Create or get existing share slug and deletion token
+        final shareData = await _sharingRepo.createOrGetShareSlug(event);
 
-      if (shareData == null) {
-        throw Exception(AppStrings.createShareFailed);
-      }
+        if (shareData == null) {
+          throw Exception(AppStrings.createShareFailed);
+        }
 
-      final slug = shareData['slug']!;
-      final deletionToken = shareData['deletionToken']!;
+        final slug = shareData['slug']!;
+        final deletionToken = shareData['deletionToken']!;
 
-      // If this is a new share, update the local event with the slug and token
-      if (event.shareSlug != slug) {
-        final updatedEvent = event.copyWith(
-          shareSlug: slug,
-          deletionToken: deletionToken,
-        );
-        await _repo.saveEvent(updatedEvent);
-        event = updatedEvent;
-        wasEdited = true;
-        update();
+        // If this is a new share, update the local event with the slug and token
+        if (event.shareSlug != slug) {
+          final updatedEvent = event.copyWith(
+            shareSlug: slug,
+            deletionToken: deletionToken,
+          );
 
-        // Load reaction count for the newly shared event
-        await _loadReactionCount();
-      }
+          final saved = await _repo.saveEvent(updatedEvent);
+          if (!saved) {
+            throw Exception('Failed to save event with share data');
+          }
 
-      // Build the shareable URL
-      final shareUrl = '${AppConstants.shareUrlBase}/?id=$slug';
+          event = updatedEvent;
+          wasEdited = true;
+          update();
 
-      // Share using native share dialog with promotional text
+          // Load reaction count for the newly shared event
+          await _loadReactionCount();
+        }
+
+        // Build the shareable URL
+        final shareUrl = '${AppConstants.shareUrlBase}/?id=$slug';
+
+        // Return data needed for Share.share()
+        return {
+          'shareUrl': shareUrl,
+          'emoji': event.emoji,
+          'title': event.title,
+        };
+      },
+      progressListener: _progressListener,
+      errorListener: _errorListener,
+    );
+
+    // If successful, show native share dialog
+    if (result.success && result.result != null) {
+      final data = result.result as Map<String, String>;
+      final shareUrl = data['shareUrl']!;
       final shareText = '${AppStrings.sharePromoMessage}\n\n$shareUrl';
+
       await Share.share(
         shareText,
-        subject: '${event.emoji} ${event.title}',
+        subject: '${data['emoji']} ${data['title']}',
         sharePositionOrigin: sharePositionOrigin,
       );
 
       AppLogger.info('[DetailController] Share successful: $shareUrl');
-    } catch (e, stackTrace) {
-      AppLogger.error('[DetailController] Share failed', e, stackTrace);
-
-      // Show user-friendly error message
-      Get.snackbar(
-        AppStrings.shareFailed,
-        AppStrings.shareFailedMessage,
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: AppColors.error,
-        colorText: Colors.white,
-        margin: const EdgeInsets.all(AppConstants.paddingMedium),
-        borderRadius: AppConstants.borderRadiusLarge,
-        duration: const Duration(seconds: 3),
-      );
     }
   }
 
