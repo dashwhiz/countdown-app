@@ -48,11 +48,7 @@ class _AppMenuButtonState extends State<AppMenuButton>
     try {
       final uri = Uri.parse(urlString);
       if (await canLaunchUrl(uri)) {
-        // Open web links in app, email links externally
-        final mode = uri.scheme == 'mailto'
-            ? LaunchMode.externalApplication
-            : LaunchMode.inAppWebView;
-        await launchUrl(uri, mode: mode);
+        await launchUrl(uri, mode: LaunchMode.inAppWebView);
       }
     } catch (e) {
       // Failed to launch URL
@@ -110,8 +106,11 @@ class _AppMenuButtonState extends State<AppMenuButton>
           case 'privacy':
             await _launchUrl(AppStrings.privacyPolicyUrl);
             break;
+          case 'terms':
+            await _launchUrl(AppStrings.termsOfServiceUrl);
+            break;
           case 'support':
-            await _launchUrl('mailto:${AppStrings.supportEmail}');
+            await _launchUrl(AppStrings.supportUrl);
             break;
         }
       },
@@ -141,6 +140,20 @@ class _AppMenuButtonState extends State<AppMenuButton>
               const Icon(Icons.privacy_tip_outlined, size: 20),
               const SizedBox(width: AppConstants.paddingMedium),
               const Text(AppStrings.privacyPolicy),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'terms',
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppConstants.paddingLarge,
+            vertical: AppConstants.paddingSmall,
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.description_outlined, size: 20),
+              const SizedBox(width: AppConstants.paddingMedium),
+              const Text(AppStrings.termsOfService),
             ],
           ),
         ),

@@ -11,6 +11,7 @@ class AppStrings {
   static const String shareUrlBase = 'https://dashwhiz.github.io/countdown-app';
   static const String privacyPolicyUrl = 'https://dashwhiz.github.io/countdown-app-landing/privacy.html';
   static const String termsOfServiceUrl = 'https://dashwhiz.github.io/countdown-app-landing/terms.html';
+  static const String supportUrl = 'https://dashwhiz.github.io/countdown-app-landing/';
 
   // Pro
   static const String proPurchaseId = 'countdown_pro_lifetime';
