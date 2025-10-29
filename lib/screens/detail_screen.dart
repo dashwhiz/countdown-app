@@ -173,18 +173,11 @@ class DetailScreen extends StatelessWidget {
               scrolledUnderElevation: 0,
               surfaceTintColor: Colors.transparent,
               actions: [
-                Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.white),
-                    tooltip: AppStrings.tooltipEditCountdown,
-                    onPressed: ctrl.navigateToEdit,
-                    padding: const EdgeInsets.all(AppConstants.paddingSmall),
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  tooltip: AppStrings.tooltipEditCountdown,
+                  onPressed: ctrl.navigateToEdit,
+                  color: AppColors.primaryLight,
                 ),
                 Builder(
                   builder: (btnContext) => IconButton(
