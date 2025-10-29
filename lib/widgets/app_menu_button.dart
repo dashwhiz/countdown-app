@@ -130,6 +130,15 @@ class _AppMenuButtonState extends State<AppMenuButton>
           ),
         ),
         PopupMenuItem(
+          enabled: false,
+          height: 16,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppConstants.paddingLarge,
+            vertical: 0,
+          ),
+          child: Divider(height: 1, thickness: 1, color: AppColors.dividerDark),
+        ),
+        PopupMenuItem(
           value: 'privacy',
           padding: const EdgeInsets.symmetric(
             horizontal: AppConstants.paddingLarge,
