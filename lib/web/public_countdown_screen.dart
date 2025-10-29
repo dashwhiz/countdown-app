@@ -321,86 +321,102 @@ class PublicCountdownScreen extends StatelessWidget {
     final isDesktop = screenWidth > AppConstants.breakpointTablet;
     final isMobile = screenWidth < AppConstants.breakpointMobile;
 
-    return Stack(
-      children: [
-        // Main content
-        Center(
-          child: Container(
-            constraints: BoxConstraints(
-              maxWidth: isDesktop
-                  ? AppConstants.maxWebContentWidth
-                  : double.infinity,
-            ),
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile
-                    ? AppConstants.paddingLarge
-                    : AppConstants.paddingLarge * 2,
-                vertical: AppConstants.paddingLarge * 2,
-              ),
-              child: GestureDetector(
-                onDoubleTap: ctrl.handleReaction,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 40),
-                    // Emoji and title
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          ctrl.event.value!.emoji,
-                          style: TextStyle(
-                            fontSize: isMobile
-                                ? 48
-                                : AppConstants.fontSizeLarge,
-                          ),
-                        ),
-                        const SizedBox(width: AppConstants.paddingMedium),
-                        Flexible(
-                          child: Text(
-                            ctrl.event.value!.title,
-                            style: Get.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: isMobile ? 20 : null,
+    return SafeArea(
+      child: Stack(
+        children: [
+          // Main content
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                  ),
+                  child: Center(
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxWidth: isDesktop
+                            ? AppConstants.maxWebContentWidth
+                            : double.infinity,
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isMobile
+                            ? AppConstants.paddingLarge
+                            : AppConstants.paddingLarge * 2,
+                        vertical: AppConstants.paddingLarge,
+                      ),
+                      child: GestureDetector(
+                        onDoubleTap: ctrl.handleReaction,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(height: 20),
+                            // Emoji and title
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  ctrl.event.value!.emoji,
+                                  style: TextStyle(
+                                    fontSize: isMobile
+                                        ? 48
+                                        : AppConstants.fontSizeLarge,
+                                  ),
+                                ),
+                                const SizedBox(width: AppConstants.paddingMedium),
+                                Flexible(
+                                  child: Text(
+                                    ctrl.event.value!.title,
+                                    style: Get.textTheme.headlineSmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: isMobile ? 20 : null,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                            const SizedBox(height: 32),
+                            // Countdown display
+                            RepaintBoundary(
+                              child: CountdownDisplay(event: ctrl.event.value!),
+                            ),
+                            const SizedBox(height: 32),
+                            // Reaction counter
+                            Obx(() => _buildReactionCounter(ctrl.reactionCount.value)),
+                            const SizedBox(height: 16),
+                            // Hint text
+                            Text(
+                              AppStrings.doubleTapToReact,
+                              style: Get.textTheme.bodyMedium?.copyWith(
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            // Footer
+                            _buildFooter(),
+                            const SizedBox(height: 20),
+                          ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 48),
-                    // Countdown display
-                    CountdownDisplay(event: ctrl.event.value!),
-                    const SizedBox(height: 48),
-                    // Reaction counter
-                    Obx(() => _buildReactionCounter(ctrl.reactionCount.value)),
-                    const SizedBox(height: 24),
-                    // Hint text
-                    Text(
-                      AppStrings.doubleTapToReact,
-                      style: Get.textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey.shade600,
                       ),
                     ),
-                    const SizedBox(height: 48),
-                    // Footer
-                    _buildFooter(),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
-        ),
-        // Reaction animation overlay
-        Obx(
-          () => ctrl.showReactionAnimation.value
-              ? _buildReactionAnimationOverlay()
-              : const SizedBox.shrink(),
-        ),
-      ],
+          // Reaction animation overlay
+          Obx(
+            () => ctrl.showReactionAnimation.value
+                ? _buildReactionAnimationOverlay()
+                : const SizedBox.shrink(),
+          ),
+        ],
+      ),
     );
   }
 
