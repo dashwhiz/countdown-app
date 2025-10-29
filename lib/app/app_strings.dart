@@ -9,10 +9,14 @@ class AppStrings {
 
   // URLs
   static const String shareUrlBase = 'https://dashwhiz.github.io/countdown-app';
-  static const String privacyPolicyUrl = 'https://dashwhiz.github.io/countdown-app-landing/privacy.html';
-  static const String termsOfServiceUrl = 'https://dashwhiz.github.io/countdown-app-landing/terms.html';
-  static const String supportUrl = 'https://dashwhiz.github.io/countdown-app-landing/#help-support';
-  static const String aboutUrl = 'https://dashwhiz.github.io/countdown-app-landing/about.html';
+  static const String privacyPolicyUrl =
+      'https://dashwhiz.github.io/countdown-app-landing/privacy.html';
+  static const String termsOfServiceUrl =
+      'https://dashwhiz.github.io/countdown-app-landing/terms.html';
+  static const String supportUrl =
+      'https://dashwhiz.github.io/countdown-app-landing/#help-support';
+  static const String aboutUrl =
+      'https://dashwhiz.github.io/countdown-app-landing/about.html';
 
   // Pro
   static const String proPurchaseId = 'countdown_pro_lifetime';
@@ -48,7 +52,8 @@ class AppStrings {
   static const String pinnedSection = 'Pins';
   static const String allSection = 'All';
   static const String emptyStateTitle = 'No countdowns yet';
-  static const String emptyStateMessage = 'Tap + to create your first countdown';
+  static const String emptyStateMessage =
+      'Tap + to create your first countdown';
   static const String deleteCountdownTitle = 'Delete Countdown?';
   static const String deleteCountdownMessage = 'This action cannot be undone.';
   static const String pin = 'Pin';
@@ -66,7 +71,11 @@ class AppStrings {
   static const String pinEvent = 'Pin to Top';
   static const String eventTitleRequired = 'Please enter a title';
   static const String unsavedChangesTitle = 'Discard Changes?';
-  static const String unsavedChangesMessage = 'You have unsaved changes. Are you sure you want to discard them?';
+  static const String unsavedChangesMessage =
+      'You have unsaved changes. Are you sure you want to discard them?';
+  static const String discardNewEventTitle = 'Discard New Event?';
+  static const String discardNewEventMessage =
+      'Your event data will be lost. Are you sure you want to go back?';
   static const String discard = 'Discard';
 
   // Detail Screen
@@ -80,7 +89,8 @@ class AppStrings {
   static const String endedOn = 'Ended on:';
   static const String endsOn = 'Ends on:';
   static const String comingSoonTitle = 'Coming Soon';
-  static const String comingSoonSharingMessage = 'Sharing feature will be available in the next update!';
+  static const String comingSoonSharingMessage =
+      'Sharing feature will be available in the next update!';
 
   // Time Display
   static const String days = 'Day(s)';
@@ -96,11 +106,13 @@ class AppStrings {
 
   // Sharing
   static const String shareMessage = 'Check out my countdown:';
-  static const String sharePromoMessage = 'Check out my countdown! Track your special moments with Countdown App 🎉';
+  static const String sharePromoMessage =
+      'Check out my countdown! Track your special moments with Countdown App 🎉';
   static const String sharedEventNotFound = 'Countdown not found';
   static const String loadingEvent = 'Loading countdown...';
   static const String shareFailed = 'Share Failed';
-  static const String shareFailedMessage = 'Could not share the countdown. Please try again.';
+  static const String shareFailedMessage =
+      'Could not share the countdown. Please try again.';
   static const String createShareFailed = 'Failed to create share link';
 
   // Reactions
@@ -135,28 +147,37 @@ class AppStrings {
   static const String getTheApp = 'Get the App';
   static const String createYourOwnCountdown = 'Create your own countdown';
   static const String countdownNotFound = 'Countdown Not Found';
-  static const String countdownNotFoundMessage = 'This countdown may have been deleted or the link is incorrect.';
+  static const String countdownNotFoundMessage =
+      'This countdown may have been deleted or the link is incorrect.';
   static const String oops = 'Oops!';
-  static const String failedToLoadCountdown = 'Failed to load countdown. Please try again.';
+  static const String failedToLoadCountdown =
+      'Failed to load countdown. Please try again.';
   static const String tryAgain = 'Try Again';
 
   // Errors
   static const String errorGeneric = 'Something went wrong';
-  static const String errorNetwork = 'Network error. Please check your internet connection.';
-  static const String errorNetworkShort = 'Network error. Please check your internet connection.';
-  static const String errorRateLimit = 'Too many requests. Please try again in a moment.';
+  static const String errorNetwork =
+      'Network error. Please check your internet connection.';
+  static const String errorNetworkShort =
+      'Network error. Please check your internet connection.';
+  static const String errorRateLimit =
+      'Too many requests. Please try again in a moment.';
   static const String errorNotFound = 'Content not found.';
   static const String errorUnexpected = 'An unexpected error occurred.';
   static const String errorLoadingEvent = 'Failed to load countdown';
   static const String errorSharingEvent = 'Failed to share countdown';
   static const String errorDeletingEvent = 'Failed to delete countdown';
   static const String errorInitialization = 'Failed to Initialize';
-  static const String errorInitializationMessage = 'We couldn\'t start the app. Please try again.';
-  static const String errorOfflineMessage = 'Please check your internet connection';
-  static const String errorTimeoutMessage = 'Connection timeout. Please try again';
+  static const String errorInitializationMessage =
+      'We couldn\'t start the app. Please try again.';
+  static const String errorOfflineMessage =
+      'Please check your internet connection';
+  static const String errorTimeoutMessage =
+      'Connection timeout. Please try again';
   static const String errorUnknownMessage = 'An unexpected error occurred';
   static const String retryButton = 'Retry';
-  static const String errorCreateShareLink = 'Failed to create shareable link. Please try again.';
+  static const String errorCreateShareLink =
+      'Failed to create shareable link. Please try again.';
 
   // Menu
   static const String restorePurchases = 'Restore Purchases';

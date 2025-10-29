@@ -310,11 +310,11 @@ class DetailScreen extends StatelessWidget {
             count == 0
                 ? AppStrings.noReactionsYet
                 : count == 1
-                    ? AppStrings.onePersonReacted
-                    : '$count ${AppStrings.peopleReacted}',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                ? AppStrings.onePersonReacted
+                : '$count ${AppStrings.peopleReacted}',
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(width: 12),
           InkWell(

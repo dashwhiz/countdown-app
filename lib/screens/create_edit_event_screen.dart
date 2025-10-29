@@ -167,12 +167,23 @@ class CreateEditEventController extends GetxController {
   }
 
   Future<bool> _showDiscardChangesDialog(BuildContext context) async {
+    // Different messages for create vs edit mode
+    final title = isEditMode
+        ? AppStrings.unsavedChangesTitle
+        : AppStrings.discardNewEventTitle;
+    final message = isEditMode
+        ? AppStrings.unsavedChangesMessage
+        : AppStrings.discardNewEventMessage;
+    final icon = isEditMode
+        ? Icons.warning_amber_rounded
+        : Icons.info_outline;
+
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        icon: const Icon(Icons.warning_amber_rounded, size: AppConstants.iconSizeExtraLarge, color: AppColors.warning),
-        title: const Text(AppStrings.unsavedChangesTitle),
-        content: const Text(AppStrings.unsavedChangesMessage),
+        icon: Icon(icon, size: AppConstants.iconSizeExtraLarge, color: AppColors.warning),
+        title: Text(title),
+        content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -183,7 +194,7 @@ class CreateEditEventController extends GetxController {
             style: TextButton.styleFrom(
               foregroundColor: AppColors.error,
             ),
-            child: const Text(AppStrings.discard),
+            child: const Text(AppStrings.ok),
           ),
         ],
       ),
