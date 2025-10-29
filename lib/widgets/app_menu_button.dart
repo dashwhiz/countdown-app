@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../app/app_colors.dart';
 import '../app/app_constants.dart';
 import '../app/app_strings.dart';
@@ -14,6 +16,7 @@ class _AppMenuButtonState extends State<AppMenuButton>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
+  String _version = '...';
 
   @override
   void initState() {
@@ -25,6 +28,31 @@ class _AppMenuButtonState extends State<AppMenuButton>
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      setState(() {
+        _version = 'v${packageInfo.version}';
+      });
+    } catch (e) {
+      setState(() {
+        _version = 'v1.0.0';
+      });
+    }
+  }
+
+  Future<void> _launchUrl(String urlString) async {
+    try {
+      final uri = Uri.parse(urlString);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      // Failed to launch URL
+    }
   }
 
   @override
@@ -68,9 +96,20 @@ class _AppMenuButtonState extends State<AppMenuButton>
       onCanceled: () {
         _animationController.reverse();
       },
-      onSelected: (value) {
+      onSelected: (value) async {
         _animationController.reverse();
-        // TODO: Implement menu actions
+
+        switch (value) {
+          case 'about':
+            // TODO: Show about dialog or open landing page
+            break;
+          case 'privacy':
+            await _launchUrl(AppStrings.privacyPolicyUrl);
+            break;
+          case 'support':
+            await _launchUrl('mailto:${AppStrings.supportEmail}');
+            break;
+        }
       },
       itemBuilder: (context) => [
         PopupMenuItem(
@@ -122,11 +161,7 @@ class _AppMenuButtonState extends State<AppMenuButton>
             horizontal: AppConstants.paddingLarge,
             vertical: 0,
           ),
-          child: Divider(
-            height: 1,
-            thickness: 1,
-            color: AppColors.dividerDark,
-          ),
+          child: Divider(height: 1, thickness: 1, color: AppColors.dividerDark),
         ),
         PopupMenuItem(
           enabled: false,
@@ -138,10 +173,7 @@ class _AppMenuButtonState extends State<AppMenuButton>
             children: [
               const Icon(Icons.info, size: 20, color: Colors.grey),
               const SizedBox(width: AppConstants.paddingMedium),
-              const Text(
-                'v1.0.0',
-                style: TextStyle(color: Colors.grey),
-              ),
+              Text(_version, style: const TextStyle(color: Colors.grey)),
             ],
           ),
         ),
