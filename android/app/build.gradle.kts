@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.dashwhiz.countdown"
+    namespace = "com.dashwhiz.countdown_app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.dashwhiz.countdown"
+        applicationId = "com.dashwhiz.countdown_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

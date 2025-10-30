@@ -36,6 +36,10 @@ dev_dependencies:
   build_runner: ^2.4.13
   flutter_launcher_icons: ^0.14.2
 
+dependency_overrides:
+  flutter_web_auth_2: ^4.1.0
+  flutter_web_auth_2_platform_interface: ^4.1.0
+
 flutter_launcher_icons:
   android: true
   ios: true
